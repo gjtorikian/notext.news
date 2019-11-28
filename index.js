@@ -19,6 +19,10 @@ app.set("view engine", "mustache");
 app.set("views", VIEWS_PATH);
 
 app.get("/", async function(req, res) {
+  return res.render("index");
+});
+
+app.get("/nytimes", async function(req, res) {
   res.setHeader("Content-Type", "text/html");
 
   let options = {
@@ -35,23 +39,23 @@ app.get("/", async function(req, res) {
 
   // NYTimes ad space
 
-  // $("div#app")
-  //   .children()
-  //   .first()
-  //   .remove();
+  $("div#app")
+    .children()
+    .first()
+    .remove();
 
   textReplacer($, "*");
 
   let contents = $.root().html();
   contents = contents.replace(
-    /\/vi-assets\//g,
+    /"\/vi-assets\//g,
     "https://www.nytimes.com/vi-assets/"
   );
-  res.send(contents);
+  return res.render("news", { body: contents });
 });
 
 function localize($, tag, attribute, url) {
-  $(tag).each(function(i, elem) {
+  $(tag).each(function(_, elem) {
     let original = $(elem).attr(attribute);
     if (original !== undefined && original[0] == "/" && original[1] != "/") {
       $(elem).attr(attribute, `https://${url}${original}`);

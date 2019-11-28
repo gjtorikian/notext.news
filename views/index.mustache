@@ -1,5 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head> </head>
-  <iframe src="https://www.nytimes.com"></iframe>
+  <head>
+    <title>NoText News</title>
+    <style>
+      #outer {
+      display: flex;
+      justify-content: center;
+      }
+      #ul li {
+          display: inline;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="outer">
+      <div id="inner">
+        <ul>
+          <li><a class="nt-news" href="/nytimes">New York Times</a></li>
+          <li><a class="nt-news" href="/guardian">The Guardian</a></li>
+          <li><a class="nt-news" href="/le-monde">Le Monde</a></li>
+          <li><a class="nt-news" href="/der-spiegel">Der Spiegel</a></li>
+          <li><a class="nt-news" href="/el-pais">El País</a></li>
+        </ul>
+      </div>
+    </div>
+    <div id="body">
+    {{{body}}}
+    </div>
+  </body>
 </html>
