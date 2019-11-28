@@ -35,25 +35,27 @@ app.get("/", async function(req, res) {
 
   // NYTimes ad space
 
-  $("div#app")
-    .children()
-    .first()
-    .remove();
+  // $("div#app")
+  //   .children()
+  //   .first()
+  //   .remove();
 
   textReplacer($, "*");
 
   let contents = $.root().html();
-
+  contents = contents.replace(
+    /\/vi-assets\//g,
+    "https://www.nytimes.com/vi-assets/"
+  );
   res.send(contents);
 });
 
 function localize($, tag, attribute, url) {
   $(tag).each(function(i, elem) {
     let original = $(elem).attr(attribute);
-    // if (original !== undefined && original.length > 0 && original[0] == "/") {
-    // console.log(original);
-    $(elem).attr(attribute, `https://${url}${original}`);
-    // }
+    if (original !== undefined && original[0] == "/" && original[1] != "/") {
+      $(elem).attr(attribute, `https://${url}${original}`);
+    }
   });
 }
 
