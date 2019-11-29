@@ -1,0 +1,29 @@
+#outer {
+  display: flex;
+  justify-content: center;
+}
+ul li {
+  display: inline;
+}
+
+ul li a.nt-news {
+  color: #004488;
+}
+ul li a.nt-news:visited {
+  color: #004488;
+}
+
+@keyframes textColorChange {
+  0% {
+    color: #cc3311;
+  }
+  50% {
+    color: #117733;
+  }
+  100% {
+    color: #cc3311;
+  }
+}
+#message {
+  animation: textColorChange 2s infinite;
+}

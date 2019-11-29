@@ -2,30 +2,12 @@
 <html lang="en">
   <head>
     <title>NoText News</title>
-    <style>
-      #outer {
-      display: flex;
-      justify-content: center;
-      }
-      #ul li {
-          display: inline;
-      }
-    </style>
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
   </head>
   <body>
-    <div id="outer">
-      <div id="inner">
-        <ul>
-          <li><a class="nt-news" href="/nytimes">New York Times</a></li>
-          <li><a class="nt-news" href="/guardian">The Guardian</a></li>
-          <li><a class="nt-news" href="/le-monde">Le Monde</a></li>
-          <li><a class="nt-news" href="/der-spiegel">Der Spiegel</a></li>
-          <li><a class="nt-news" href="/el-pais">El País</a></li>
-        </ul>
-      </div>
-    </div>
+    {{>_links}}
     <div id="body">
-    {{{body}}}
+    Another experiment in text representation. <a href="https://www.github.com/gjtorikian/notext.news">Source code</a>.
     </div>
   </body>
 </html>

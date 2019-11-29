@@ -1,9 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>NoText News</title>
+    <title>NoText: {{name}}</title>
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
   </head>
   <body>
+    <div id="loader">
+    <p id="message">Rendering...</p>
+    </div>
     {{{body}}}
+    <script>
+    function viewport() {
+      var e = window , a = 'inner';
+      if ( !( 'innerWidth' in window ) ) {
+        a = 'client';
+        e = document.documentElement || document.body;
+      }
+      return { width : e[ a+'Width' ] , height : e[ a+'Height' ] }
+    }
+
+    window.addEventListener('DOMContentLoaded', async (event) => {
+      let source = "{{{source}}}"
+      let width = viewport().width
+      let height = viewport().height
+      const response = await fetch(`/${source}/data?width=${width}&height=${height}`);
+      const news = await response.json();
+
+      let head = document.getElementsByTagName('head')[0];
+      head.innerHTML += news.head;
+      let body = document.getElementsByTagName('body')[0];
+      body.innerHTML += news.body;
+
+      document.getElementById("loader").remove();
+    });
+    </script>
   </body>
 </html>
