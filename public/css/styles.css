@@ -1,3 +1,7 @@
+/* body * {
+  content: "\7C\a0\a0"
+} */
+
 #outer {
   display: flex;
   justify-content: center;

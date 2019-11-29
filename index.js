@@ -117,6 +117,7 @@ function fetchPageContent(pageContent) {
 }
 
 function textReplacer($) {
+  const nbsp = $("<span>&nbsp;</span>");
   $("*")
     .contents()
     .each(function(_, elem) {
@@ -125,7 +126,7 @@ function textReplacer($) {
         elem.parent.name != "style" &&
         elem.parent.name != "script"
       ) {
-        $(elem).replaceWith("&nbsp;");
+        $(elem).replaceWith(nbsp);
       }
     });
 }
@@ -140,15 +141,17 @@ async function autoScroll(page) {
   await page.evaluate(async () => {
     await new Promise((resolve, reject) => {
       let totalHeight = 0;
-      let distance = 200;
+      let distance = 500;
       let timer = setInterval(() => {
         let scrollHeight = document.body.scrollHeight;
         window.scrollBy(0, distance);
         totalHeight += distance;
 
         if (totalHeight >= scrollHeight) {
-          clearInterval(timer);
-          resolve();
+          setTimeout(function() {
+            clearInterval(timer);
+            resolve();
+          }, 250);
         }
       }, 250);
     });
