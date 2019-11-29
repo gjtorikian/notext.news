@@ -7,13 +7,11 @@ const port = 3000;
 const cheerio = require("cheerio");
 const puppeteer = require("puppeteer");
 
-const VIEWS_PATH = path.join(__dirname, "/views");
+const VIEWS_PATH = path.join(__dirname, "views");
 
 let mustacheExpress = require("mustache-express");
 
-// Register '.mustache' extension with The Mustache Express
 app.engine("mustache", mustacheExpress());
-app.engine("mst", mustacheExpress(VIEWS_PATH + "/partials", ".mst"));
 
 app.set("view engine", "mustache");
 app.set("views", VIEWS_PATH);
