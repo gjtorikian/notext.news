@@ -158,7 +158,10 @@ async function autoScroll(page) {
 }
 
 async function fetchPage(source, url, width, height) {
-  const browser = await puppeteer.launch({ headless: isProd });
+  const browser = await puppeteer.launch({
+    headless: isProd,
+    args: ["--no-sandbox", "--disable-setuid-sandbox"]
+  });
   const page = await browser.newPage();
   await page.setViewport({ width: width, height: height });
   await page.goto(url, { waitUntil: "networkidle2" });
