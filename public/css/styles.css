@@ -2,22 +2,37 @@ body div#nt-news-body-text {
   color: transparent !important;
 }
 
-body div#nt-news-intro,
-body div#nt-news-loader {
-  text-align: center;
+body div#nt-news-message {
   position: absolute;
   left: 50%;
-  top: 50%;
-  -webkit-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
 }
 
-#outer {
+.nt-news-text {
+  font-family: Verdana, Geneva, sans-serif;
+}
+
+h1.nt-news-text {
+  font-size: 5rem;
+  text-align: center;
+}
+
+ul.nt-news-list {
+  list-style-type: none;
+  padding-left: 0px;
+}
+
+ul.nt-news-list li {
+  padding-bottom: 1rem;
   display: flex;
   justify-content: center;
+  font-size: 1rem;
 }
-ul li {
-  display: inline;
+
+p#nt-news-info {
+  text-align: justify;
+  width: 300px;
+  line-height: 1.5;
 }
 
 a.nt-news-link {
@@ -25,6 +40,10 @@ a.nt-news-link {
 }
 a.nt-news-link:visited {
   color: #004488;
+}
+
+#nt-news-info {
+  padding-top: 3rem;
 }
 
 @keyframes textColorChange {
