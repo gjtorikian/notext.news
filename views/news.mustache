@@ -27,11 +27,17 @@
       const response = await fetch(`/${source}/data?width=${width}&height=${height}`);
       const news = await response.json();
 
-      let head = document.getElementsByTagName('head')[0];
-      head.innerHTML += news.head;
+      let htmlTag = document.getElementsByTagName("html")[0];
+      htmlTag.classList.add(...(Object.values(news.htmlClasses)));;
+      htmlTag.setAttribute("lang", news.htmlLang);
+
+      let head = document.head;
+      head.innerHTML += news.headHTML;
+      let body = document.body;
+      body.innerHTML += news.bodyHTML;
+      body.classList.add(...(Object.values(news.bodyClasses)));
+
       document.getElementById("nt-news-loader").remove();
-      let body = document.getElementsByTagName('body')[0];
-      body.innerHTML += news.body;
     });
     </script>
   </body>

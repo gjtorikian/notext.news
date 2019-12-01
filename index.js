@@ -4,7 +4,6 @@ const express = require("express");
 const app = express();
 const port = 3000;
 
-const cheerio = require("cheerio");
 const puppeteer = require("puppeteer");
 
 const VIEWS_PATH = path.join(__dirname, "views");
@@ -87,90 +86,17 @@ app.get("/:source/data", async function(req, res) {
     default:
       return res.sendStatus(404);
   }
-  const pageContent = await fetchPage(
+  const pageDocument = await fetchPage(
     source,
     url,
     Number(req.query.width),
     Number(req.query.height)
   );
 
-  const data = fetchPageContent(pageContent);
-
-  return res.send(JSON.stringify(data));
+  return res.send(JSON.stringify(pageDocument));
 });
 
-function fetchPageContent(pageContent) {
-  const $ = cheerio.load(pageContent);
-
-  $("meta").remove();
-  $("script").remove();
-  $("noscript").remove();
-  $("title").remove();
-  $("iframe").remove();
-
-  textReplacer($);
-  linkRewriter($);
-
-  let parsedHead = $("head").html();
-  let parsedBody = $("body").html();
-
-  return {
-    head: parsedHead,
-    body: parsedBody
-  };
-}
-
-function textReplacer($) {
-  const nbsp = $("<span>&nbsp;</span>");
-  $("*")
-    .contents()
-    .each(function(_, elem) {
-      if (
-        elem.type == "text" &&
-        elem.parent.name != "style" &&
-        elem.parent.name != "script"
-      ) {
-        $(elem).replaceWith(nbsp);
-      }
-    });
-}
-
-function linkRewriter($) {
-  $("a").each(function(_, elem) {
-    $(elem).removeAttr("href");
-  });
-}
-
-async function autoScroll(page) {
-  await page.evaluate(async () => {
-    await new Promise((resolve, reject) => {
-      let totalHeight = 0;
-      let distance = 500;
-      let timer = setInterval(() => {
-        let scrollHeight = document.body.scrollHeight;
-        window.scrollBy(0, distance);
-        totalHeight += distance;
-
-        if (totalHeight >= scrollHeight) {
-          setTimeout(function() {
-            clearInterval(timer);
-            resolve();
-          }, 250);
-        }
-      }, 250);
-    });
-  });
-}
-
-async function fetchPage(source, url, width, height) {
-  const browser = await puppeteer.launch({
-    headless: isProd,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"]
-  });
-  const page = await browser.newPage();
-  await page.setViewport({ width: width, height: height });
-  await page.goto(url, { waitUntil: "networkidle2" });
-
+async function removeBanners(source, page) {
   if (source == "nytimes") {
     const [button] = await page.$x("//button[contains(., 'I Accept')]");
     if (button) {
@@ -189,10 +115,46 @@ async function fetchPage(source, url, width, height) {
       await button.click();
     }
   }
+}
 
+async function autoScroll(page) {
+  await page.evaluate(async () => {
+    await new Promise((resolve, reject) => {
+      let totalHeight = 0;
+      let distance = 500;
+      let timer = setInterval(() => {
+        let scrollHeight = document.body.scrollHeight;
+        window.scrollBy(0, distance);
+        totalHeight += distance;
+
+        if (totalHeight >= scrollHeight) {
+          setTimeout(function() {
+            clearInterval(timer);
+            resolve();
+          }, 250);
+        }
+      }, 500);
+    });
+  });
+}
+
+async function fetchPage(source, url, width, height) {
+  const browser = await puppeteer.launch({
+    headless: isProd,
+    args: ["--no-sandbox", "--disable-setuid-sandbox"]
+    // slowMo: 300
+  });
+  const page = await browser.newPage();
+  await page.setViewport({ width: width, height: height });
+  await page.goto(url, { waitUntil: "networkidle2" });
+
+  // load dynamic content
   await autoScroll(page);
 
-  await page.evaluate(url => {
+  // click cookie buttons
+  await removeBanners(source, page);
+
+  const pageDocument = await page.evaluate(url => {
     function localize(tag, attribute, url) {
       let elements = document.getElementsByTagName(tag);
       for (let el of elements) {
@@ -203,44 +165,131 @@ async function fetchPage(source, url, width, height) {
         }
       }
     }
-
     localize("link", "href", url);
     localize("script", "src", url);
 
     // some complex CSS styles added by JS need to be manually recreated
-    let cssRules = [];
-    let styles = document.querySelectorAll("style");
-    for (style of styles) {
-      // we only care about sneaky JS styles
-      // if (style.innerText == "") {
-      //   continue;
-      // }
-      let rules = style.sheet.rules;
-      for (rule of rules) {
-        cssRules.push(rule.cssText);
+    function applyJSCSS() {
+      let cssRules = [];
+      let styles = document.querySelectorAll("style");
+      for (style of styles) {
+        // we only care about sneaky JS styles
+        // if (style.innerText == "") {
+        //   continue;
+        // }
+        let rules = style.sheet.rules;
+        for (rule of rules) {
+          cssRules.push(rule.cssText);
+        }
+      }
+      let cssRulesAppended = cssRules.join(" ");
+
+      let styleTag = document.createElement("style");
+      styleTag.type = "text/css";
+      styleTag.appendChild(document.createTextNode(cssRulesAppended));
+
+      return styleTag;
+    }
+
+    let head = document.head;
+    head.appendChild(applyJSCSS());
+
+    // https://stackoverflow.com/questions/10730309/find-all-text-nodes-in-html-page
+    function walkNodeTree(root, options) {
+      options = options || {};
+
+      const inspect = options.inspect || (n => true),
+        collect = options.collect || (n => true);
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_ALL, {
+        acceptNode: function(node) {
+          if (!inspect(node)) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          if (!collect(node)) {
+            return NodeFilter.FILTER_SKIP;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+
+      const nodes = [];
+      let n;
+      while ((n = walker.nextNode())) {
+        options.callback && options.callback(n);
+        nodes.push(n);
+      }
+
+      return nodes;
+    }
+
+    function textNodesUnder(el, callback) {
+      return walkNodeTree(el, {
+        inspect: n => !["STYLE", "SCRIPT"].includes(n.nodeName),
+        collect: n => n.nodeType === Node.TEXT_NODE,
+        callback: n => callback(n)
+      });
+    }
+
+    // replace all text with nbsp
+    textNodesUnder(document.body, function(el) {
+      el.textContent = "\u00A0";
+    });
+
+    function removeLinks() {
+      let anchors = document.getElementsByTagName("a");
+      for (a of anchors) {
+        a.removeAttribute("href");
       }
     }
-    var cssRulesAppended = cssRules.join(" ");
+    // remove all clickable links
+    removeLinks();
 
-    let head = document.head || document.getElementsByTagName("head")[0],
-      styleTag = document.createElement("style");
-
-    styleTag.type = "text/css";
-
-    if (styleTag.styleSheet) {
-      styleTag.styleSheet.cssText = cssRulesAppended;
-    } else {
-      styleTag.appendChild(document.createTextNode(cssRulesAppended));
+    function removeNodes(name) {
+      let nodes = document.getElementsByTagName(name);
+      let nodesLength = nodes.length;
+      // truly unsure why not all children are removed at once
+      do {
+        for (let n of nodes) {
+          n.parentNode.removeChild(n);
+        }
+        nodesLength = document.getElementsByTagName(name).length;
+      } while (nodesLength > 0);
     }
 
-    head.appendChild(styleTag);
-  }, url);
+    // remove problematic nodes
+    removeNodes("meta");
+    removeNodes("script");
+    removeNodes("noscript");
+    removeNodes("title");
+    removeNodes("iframe");
 
-  let pageContent = await page.content();
+    let htmlTag = document.getElementsByTagName("html")[0];
+    let htmlClasses;
+    if (htmlTag.classList.length > 0) {
+      htmlClasses = htmlTag.classList;
+    } else {
+      htmlClasses = ["no-class-list-found"];
+    }
+    let htmlLang = htmlTag.getAttribute("lang");
+    let bodyClasses;
+    if (document.body.classList > 0) {
+      bodyClasses = htmlTag.classList;
+    } else {
+      bodyClasses = ["no-class-list-found"];
+    }
+
+    return {
+      htmlClasses,
+      htmlLang,
+      bodyClasses,
+      headHTML: document.head.innerHTML,
+      bodyHTML: document.body.innerHTML
+    };
+  }, url);
 
   browser.close();
 
-  return pageContent;
+  return pageDocument;
 }
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
