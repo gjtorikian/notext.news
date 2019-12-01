@@ -12,9 +12,7 @@
     {{{body}}}
     </div>
     <script>
-    let loaderEl = document.getElementById("nt-news-loader");
-    let progressEl = document.getElementById("nt-news-progress")
-    function renderProgress() {
+    function renderProgress(loaderEl, progressEl) {
       var timeleft = 20;
       var downloadTimer = setInterval(function(){
         progressEl.value = 20 - timeleft;
@@ -35,7 +33,10 @@
     }
 
     window.addEventListener('DOMContentLoaded', async (event) => {
-      renderProgress();
+      let loaderEl = document.getElementById("nt-news-loader");
+      let progressEl = document.getElementById("nt-news-progress");
+
+      renderProgress(loaderEl, progressEl);
 
       let source = "{{{source}}}"
       let width = viewport().width
