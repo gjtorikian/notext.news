@@ -52,6 +52,9 @@ app.get("/:source", async function(req, res) {
     case "el-pais":
       name = "El País";
       break;
+    case "asahi":
+      name = "朝日新聞";
+      break;
     default:
       return res.sendStatus(404);
   }
@@ -82,6 +85,9 @@ app.get("/:source/data", async function(req, res) {
       break;
     case "el-pais":
       url = "https://elpais.com/";
+      break;
+    case "asahi":
+      url = "https://www.asahi.com/";
       break;
     default:
       return res.sendStatus(404);
