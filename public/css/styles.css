@@ -33,6 +33,7 @@ p#nt-news-info {
   text-align: justify;
   width: 300px;
   line-height: 1.5;
+  padding-top: 3rem;
 }
 
 a.nt-news-link {
@@ -42,8 +43,35 @@ a.nt-news-link:visited {
   color: #004488;
 }
 
-#nt-news-info {
-  padding-top: 3rem;
+div.image-holder {
+  height: 40px;
+  width: 40px;
+  position: absolute;
+  float: right;
+  top: 0;
+  right: 0;
+}
+
+div.image-holder img {
+  opacity: 0.5;
+  position: absolute;
+  float: right;
+  top: 0;
+  right: 0;
+  max-width: 100%;
+}
+div.image-holder:hover img {
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out;
+}
+@media screen and (max-device-width: 825px) {
+  .dn-custom {
+    display: none;
+  }
+  div.image-holder {
+    width: 30px;
+    height: 30px;
+  }
 }
 
 @keyframes textColorChange {
