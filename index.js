@@ -31,7 +31,7 @@ if (isProd) {
 }
 
 app.get("/", async function(req, res) {
-  return res.render("index");
+  return res.render("index", { title: "NoText News" });
 });
 
 app.get("/:source", async function(req, res) {
@@ -57,7 +57,11 @@ app.get("/:source", async function(req, res) {
       return res.sendStatus(404);
   }
 
-  return res.render("news", { source: source, name: name });
+  return res.render("news", {
+    source: source,
+    name: name,
+    title: `NoText: ${name}`
+  });
 });
 
 app.get("/:source/data", async function(req, res) {

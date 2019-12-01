@@ -16,7 +16,7 @@
     "nodemon": "^2.0.1"
   },
   "scripts": {
-    "server": "nodemon index.js"
+    "server": "nodemon index.js -e js,mustache"
   },
   "keywords": [],
   "author": "",
