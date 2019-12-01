@@ -120,6 +120,11 @@ async function removeBanners(source, page) {
       const button = (await span.$x(".."))[0];
       await button.click();
     }
+  } else if (source == "asahi") {
+    const [a] = await page.$x('//a[contains(@class, "cc-btn")]');
+    if (a) {
+      await a.click();
+    }
   }
 }
 
