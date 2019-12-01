@@ -12,12 +12,13 @@
     {{{body}}}
     </div>
     <script>
-    function renderProgress(loaderEl, progressEl) {
-      var timeleft = 20;
-      var downloadTimer = setInterval(function(){
+    function renderProgress(loaderEl) {
+      let progressEl = document.getElementById("nt-news-progress");
+      let timeleft = 20;
+      let downloadTimer = setInterval(function(){
         progressEl.value = 20 - timeleft;
         timeleft -= 1;
-        if(timeleft <= 0 || !loaderEl){
+        if (timeleft <= 0 || !loaderEl){
           clearInterval(downloadTimer);
         }
       }, 1000);
@@ -34,13 +35,12 @@
 
     window.addEventListener('DOMContentLoaded', async (event) => {
       let loaderEl = document.getElementById("nt-news-loader");
-      let progressEl = document.getElementById("nt-news-progress");
 
-      renderProgress(loaderEl, progressEl);
+      renderProgress(loaderEl);
 
-      let source = "{{{source}}}"
-      let width = viewport().width
-      let height = viewport().height
+      let source = "{{{source}}}";
+      let width = viewport().width;
+      let height = viewport().height;
       const response = await fetch(`/${source}/data?width=${width}&height=${height}`);
       const news = await response.json();
 
@@ -48,13 +48,13 @@
       htmlTag.classList.add(...(Object.values(news.htmlClasses)));;
       htmlTag.setAttribute("lang", news.htmlLang);
 
+      loaderEl.remove();
+
       let head = document.head;
       head.innerHTML += news.headHTML;
       let body = document.body;
       body.innerHTML += news.bodyHTML;
       body.classList.add(...(Object.values(news.bodyClasses)));
-
-      loaderEl.remove();
     });
     </script>
   </body>
