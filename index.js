@@ -305,7 +305,7 @@ async function fetchPage(source, url, width, height) {
     };
   }, url);
 
-  browser.close();
+  await browser.close();
 
   return pageDocument;
 }
