@@ -1,9 +1,9 @@
-/* body * {
-  content: "\7C\a0\a0"
-} */
+body div#nt-news-body-text {
+  color: transparent !important;
+}
 
-body div#body,
-body div#loader {
+body div#nt-news-intro,
+body div#nt-news-loader {
   text-align: center;
   position: absolute;
   left: 50%;
@@ -20,17 +20,10 @@ ul li {
   display: inline;
 }
 
-ul li a.nt-news {
+a.nt-news-link {
   color: #004488;
 }
-ul li a.nt-news:visited {
-  color: #004488;
-}
-
-body div a.gh-link {
-  color: #004488;
-}
-body div a.gh-link:visited {
+a.nt-news-link:visited {
   color: #004488;
 }
 
@@ -45,6 +38,6 @@ body div a.gh-link:visited {
     color: #cc3311;
   }
 }
-#message {
+body h1#nt-news-message {
   animation: textColorChange 2s infinite;
 }
