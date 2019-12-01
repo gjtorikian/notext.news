@@ -12,12 +12,14 @@
     {{{body}}}
     </div>
     <script>
+    let loaderEl = document.getElementById("nt-news-loader");
+    let progressEl = document.getElementById("nt-news-progress")
     function renderProgress() {
       var timeleft = 20;
       var downloadTimer = setInterval(function(){
-        document.getElementById("nt-news-progress").value = 20 - timeleft;
+        progressEl.value = 20 - timeleft;
         timeleft -= 1;
-        if(timeleft <= 0){
+        if(timeleft <= 0 || !loaderEl){
           clearInterval(downloadTimer);
         }
       }, 1000);
@@ -51,7 +53,7 @@
       body.innerHTML += news.bodyHTML;
       body.classList.add(...(Object.values(news.bodyClasses)));
 
-      document.getElementById("nt-news-loader").remove();
+      loaderEl.remove();
     });
     </script>
   </body>
