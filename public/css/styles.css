@@ -2,7 +2,8 @@ div#nt-news-body-text {
   color: transparent !important;
 }
 
-div#nt-news-message {
+div#nt-news-message,
+progress#nt-news-progress {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);

@@ -6,11 +6,23 @@
   <body>
     <div id="nt-news-loader">
       <h1 id="nt-news-message" class="nt-news-text">Loading</h1>
+      <progress value="0" max="20" id="nt-news-progress"></progress>
     </div>
     <div id="nt-news-body-text">
     {{{body}}}
     </div>
     <script>
+    function renderProgress() {
+      var timeleft = 20;
+      var downloadTimer = setInterval(function(){
+        document.getElementById("nt-news-progress").value = 20 - timeleft;
+        timeleft -= 1;
+        if(timeleft <= 0){
+          clearInterval(downloadTimer);
+        }
+      }, 1000);
+    }
+
     function viewport() {
       var e = window, a = 'inner';
       if ( !( 'innerWidth' in window ) ) {
@@ -21,6 +33,8 @@
     }
 
     window.addEventListener('DOMContentLoaded', async (event) => {
+      renderProgress();
+
       let source = "{{{source}}}"
       let width = viewport().width
       let height = viewport().height
