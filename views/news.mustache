@@ -35,12 +35,13 @@
 
     window.addEventListener('DOMContentLoaded', async (event) => {
       let loaderEl = document.getElementById("nt-news-loader");
+      let dimensions = viewport();
 
       renderProgress(loaderEl);
 
       let source = "{{{source}}}";
-      let width = viewport().width;
-      let height = viewport().height;
+      let width = dimensions.width;
+      let height = dimensions.height;
       const response = await fetch(`/${source}/data?width=${width}&height=${height}`);
       const news = await response.json();
 
