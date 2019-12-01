@@ -1,8 +1,8 @@
-body div#nt-news-body-text {
+div#nt-news-body-text {
   color: transparent !important;
 }
 
-body div#nt-news-message {
+div#nt-news-message {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
@@ -85,6 +85,6 @@ div.image-holder:hover img {
     color: #cc3311;
   }
 }
-body h1#nt-news-message {
+div#nt-news-loader {
   animation: textColorChange 2s infinite;
 }
