@@ -123,7 +123,7 @@ async function writePage(source, url, size, width, height) {
     JSON.stringify(pageDocument)
   );
 }
-const time = isProd ? "*/5" : "*/1";
+const time = isProd ? "*/10" : "*/1";
 cron.schedule(`${time} * * * *`, async function() {
   // TODO: intentional attempt at sync work, could probably be cleaned up
   for (const [size, dimensions] of Object.entries(sizes)) {
