@@ -83,7 +83,7 @@ async function writePage(source, url) {
   );
   fs.writeFileSync(`${source}.page.json`, JSON.stringify(pageDocument));
 }
-cron.schedule("*/6 * * * *", async function() {
+cron.schedule("*/5 * * * *", async function() {
   await writePage("nytimes", "https://www.nytimes.com/");
   await writePage("guardian", "https://www.theguardian.com/");
   await writePage("le-monde", "https://www.lemonde.fr/");
