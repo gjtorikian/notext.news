@@ -1,62 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{data.htmlLang}}" class="{{data.htmlClasses}}">
   <head>
     {{> _meta}}
+    {{{data.headHTML}}}
   </head>
-  <body>
-    <div id="nt-news-loader">
-      <h1 id="nt-news-message" class="nt-news-text">Loading</h1>
-      <progress value="0" max="20" id="nt-news-progress"></progress>
-    </div>
+  <body class="{{data.bodyClasses}}">
     <div id="nt-news-body-text">
-    {{{body}}}
+    {{{data.bodyHTML}}}
     </div>
-    <script>
-    function renderProgress(loaderEl) {
-      let progressEl = document.getElementById("nt-news-progress");
-      let timeleft = 20;
-      let downloadTimer = setInterval(function(){
-        progressEl.value = 20 - timeleft;
-        timeleft -= 1;
-        if (timeleft <= 0 || !loaderEl){
-          clearInterval(downloadTimer);
-        }
-      }, 1000);
-    }
-
-    function viewport() {
-      var e = window, a = 'inner';
-      if ( !( 'innerWidth' in window ) ) {
-        a = 'client';
-        e = document.documentElement || document.body;
-      }
-      return { width : e[ a+'Width' ] , height : e[ a+'Height' ] }
-    }
-
-    window.addEventListener('DOMContentLoaded', async (event) => {
-      let loaderEl = document.getElementById("nt-news-loader");
-      let dimensions = viewport();
-
-      renderProgress(loaderEl);
-
-      let source = "{{{source}}}";
-      let width = dimensions.width;
-      let height = dimensions.height;
-      const response = await fetch(`/${source}/data?width=${width}&height=${height}`);
-      const news = await response.json();
-
-      let htmlTag = document.getElementsByTagName("html")[0];
-      htmlTag.classList.add(...(Object.values(news.htmlClasses)));;
-      htmlTag.setAttribute("lang", news.htmlLang);
-
-      loaderEl.remove();
-
-      let head = document.head;
-      head.innerHTML += news.headHTML;
-      let body = document.body;
-      body.innerHTML += news.bodyHTML;
-      body.classList.add(...(Object.values(news.bodyClasses)));
-    });
-    </script>
   </body>
 </html>

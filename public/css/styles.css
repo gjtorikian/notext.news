@@ -2,8 +2,7 @@ div#nt-news-body-text {
   color: transparent !important;
 }
 
-div#nt-news-message,
-progress#nt-news-progress {
+div#nt-news-message {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
@@ -73,19 +72,4 @@ div.image-holder:hover img {
     width: 30px;
     height: 30px;
   }
-}
-
-@keyframes textColorChange {
-  0% {
-    color: #cc3311;
-  }
-  50% {
-    color: #117733;
-  }
-  100% {
-    color: #cc3311;
-  }
-}
-div#nt-news-loader {
-  animation: textColorChange 2s infinite;
 }
