@@ -104,20 +104,18 @@ cron.schedule(`${time} * * * *`, async function() {
   for (const [size, dimensions] of Object.entries(sizes)) {
     let width = dimensions[0],
       height = dimensions[1];
-    await Promise.all([
-      render("nytimes", "https://www.nytimes.com/", size, width, height),
-      render(
-        "guardian",
-        "https://www.theguardian.com/uk/",
-        size,
-        width,
-        height
-      ),
-      render("le-monde", "https://www.lemonde.fr/", size, width, height),
-      render("der-spiegel", "https://www.spiegel.de/", size, width, height),
-      render("el-pais", "https://elpais.com/", size, width, height),
-      render("asahi", "https://www.asahi.com/", size, width, height)
-    ]);
+    await render("nytimes", "https://www.nytimes.com/", size, width, height);
+    await render(
+      "guardian",
+      "https://www.theguardian.com/uk/",
+      size,
+      width,
+      height
+    );
+    await render("le-monde", "https://www.lemonde.fr/", size, width, height);
+    await render("der-spiegel", "https://www.spiegel.de/", size, width, height);
+    await render("el-pais", "https://elpais.com/", size, width, height);
+    await render("asahi", "https://www.asahi.com/", size, width, height);
   }
 });
 
