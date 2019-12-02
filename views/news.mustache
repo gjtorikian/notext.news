@@ -15,13 +15,15 @@
       return { width : e[ a+'Width' ] , height : e[ a+'Height' ] }
     }
 
-    window.addEventListener('DOMContentLoaded', async (event) => {
+    async function applyNews() {
       let source = "{{{source}}}"
       let dimensions = viewport();
       let width = dimensions.width
 
       const response = await fetch(`/sizer/${source}/${width}`);
       const news = await response.json();
+
+      console.log(`Applying ${news.size}`)
 
       let htmlTag = document.getElementsByTagName("html")[0];
       htmlTag.classList += news.htmlClasses;
@@ -34,7 +36,10 @@
       body.innerHTML += news.bodyHTML;
       body.id = news.bodyId;
       body.classList.className += news.bodyClasses;
-    });
+    }
+
+    window.addEventListener('DOMContentLoaded', applyNews);
+    window.addEventListener('orientationchange', applyNews);
     </script>
   </body>
 </html>

@@ -41,10 +41,8 @@ async function autoScroll(page) {
         totalHeight += distance;
 
         if (totalHeight >= scrollHeight) {
-          setTimeout(function() {
-            clearInterval(timer);
-            resolve();
-          }, 700);
+          clearInterval(timer);
+          resolve();
         }
       }, 700);
     });
@@ -83,7 +81,7 @@ async function fetchPage(source, url, size, width, height) {
   await removeBanners(source, page);
 
   const pageDocument = await page.evaluate(
-    (source, url) => {
+    (source, url, size) => {
       function localize(tag, attribute, url) {
         let elements = document.getElementsByTagName(tag);
         for (let el of elements) {
@@ -235,6 +233,7 @@ async function fetchPage(source, url, size, width, height) {
       }
 
       return {
+        size,
         htmlClasses,
         htmlLang,
         bodyId: document.body.id,
@@ -244,7 +243,8 @@ async function fetchPage(source, url, size, width, height) {
       };
     },
     source,
-    url
+    url,
+    size
   );
 
   await browser.close();
@@ -252,10 +252,24 @@ async function fetchPage(source, url, size, width, height) {
   return pageDocument;
 }
 
-module.exports = async function(source, url, size, width, height) {
+const render = async function(source, url, size) {
+  let width = sizes[size].width,
+    height = sizes[size].height;
   const pageDocument = await fetchPage(source, url, size, width, height);
   fs.writeFileSync(
     `data/${source}.page-${size}.json`,
     JSON.stringify(pageDocument)
   );
+};
+
+const sizes = {
+  small: [375, 667],
+  medium: [768, 667],
+  large: [992, 667],
+  xlarge: [1200, 667]
+};
+
+module.exports = {
+  render: render,
+  sizes: sizes
 };

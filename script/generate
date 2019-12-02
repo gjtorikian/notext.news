@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-const render = require("../render");
+const { render } = require("../render");
 
 async function generate() {
-  await render("der-spiegel", "https://www.spiegel.de/", "small", 576, 667);
+  await render("der-spiegel", "https://www.spiegel.de/", "small");
 }
 
 generate();

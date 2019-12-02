@@ -7,7 +7,7 @@ const port = 3000;
 
 const cron = require("node-cron");
 
-const render = require("./render");
+const { render, sizes } = require("./render");
 
 const VIEWS_PATH = path.join(__dirname, "views");
 
@@ -73,13 +73,6 @@ app.get("/from/:source", async function(req, res) {
   });
 });
 
-const sizes = {
-  small: [375, 667],
-  medium: [768, 667],
-  large: [992, 667],
-  xlarge: [1200, 667]
-};
-
 app.get("/sizer/:source/:width", async function(req, res) {
   let source = req.params.source;
   let viewportWidth = Number(req.params.width);
@@ -101,21 +94,13 @@ app.get("/sizer/:source/:width", async function(req, res) {
 const time = isProd ? "*/10" : "*/1";
 cron.schedule(`${time} * * * *`, async function() {
   // TODO: intentional attempt at sync work, could probably be cleaned up
-  for (const [size, dimensions] of Object.entries(sizes)) {
-    let width = dimensions[0],
-      height = dimensions[1];
-    await render("nytimes", "https://www.nytimes.com/", size, width, height);
-    await render(
-      "guardian",
-      "https://www.theguardian.com/uk/",
-      size,
-      width,
-      height
-    );
-    await render("le-monde", "https://www.lemonde.fr/", size, width, height);
-    await render("der-spiegel", "https://www.spiegel.de/", size, width, height);
-    await render("el-pais", "https://elpais.com/", size, width, height);
-    await render("asahi", "https://www.asahi.com/", size, width, height);
+  for (const [size, _] of Object.entries(sizes)) {
+    // await render("nytimes", "https://www.nytimes.com/", size);
+    // await render("guardian", "https://www.theguardian.com/uk/", size);
+    // await render("le-monde", "https://www.lemonde.fr/", size);
+    await render("der-spiegel", "https://www.spiegel.de/", size);
+    // await render("el-pais", "https://elpais.com/", size);
+    // await render("asahi", "https://www.asahi.com/", size);
   }
 });
 
