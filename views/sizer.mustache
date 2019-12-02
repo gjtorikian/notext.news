@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  </head>
+  <body>
+    <script>
+    function viewport() {
+      var e = window , a = 'inner';
+      if ( !( 'innerWidth' in window ) ) {
+        a = 'client';
+        e = document.documentElement || document.body;
+      }
+      return { width : e[ a+'Width' ] , height : e[ a+'Height' ] }
+    }
+
+    window.addEventListener('DOMContentLoaded', async (event) => {
+      let dimensions = viewport();
+      let width = dimensions.width;
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const source = urlParams.get('source');
+
+      window.location.replace(`/fetcher?source=${source}&width=${width}`);
+    });
+    </script>
+  </body>
+</html>

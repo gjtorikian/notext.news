@@ -13,6 +13,6 @@ It works by:
 * Removing all the text from that page
 * Sending the stripped HTML contents of the page back to the original site
 
-This is done mostly to avoid CORS issues with trying to manipulate the original content directly, and partly for the reason that most news sites are not static and dynamically load the events of the day. This has an unfortunate performance hit that can't be avoided. To work around this, a cron job runs once every six minutes to perform this process.
+This is done mostly to avoid CORS issues with trying to manipulate the original content directly, and partly for the reason that most news sites are not static and dynamically load the events of the day. This has an unfortunate performance hit that can't be avoided. To work around this, a cron job runs once every five minutes to perform this process and essentially cache the rendered pages.
 
 Please note: I am not advocating that you ever ignore the news. That's a viewpoint situated in a position of extreme privilege. This is just an art project.

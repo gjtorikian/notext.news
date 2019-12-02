@@ -39,8 +39,14 @@ app.get("/", async function(req, res) {
   });
 });
 
-app.get("/:source", async function(req, res) {
+app.get("/from/:source/:size?", async function(req, res) {
   let source = req.params.source;
+  let size = req.params.size;
+
+  if (!size) {
+    return res.redirect(`/sizer?source=${source}`);
+  }
+
   let name;
   switch (source) {
     case "nytimes":
@@ -65,7 +71,7 @@ app.get("/:source", async function(req, res) {
       return res.sendStatus(404);
   }
 
-  const data = JSON.parse(fs.readFileSync(`${source}.page.json`));
+  const data = JSON.parse(fs.readFileSync(`data/${source}.page-${size}.json`));
   return res.render("news", {
     source: source,
     name: name,
@@ -74,9 +80,37 @@ app.get("/:source", async function(req, res) {
   });
 });
 
-const width = 1366;
-const height = 768;
-async function writePage(source, url) {
+const sizes = {
+  small: [576, 667],
+  medium: [768, 667],
+  large: [992, 667],
+  xlarge: [1200, 667]
+};
+
+app.get("/sizer", async function(req, res) {
+  let source = req.query.source;
+  return res.render("sizer", {
+    source: source
+  });
+});
+
+app.get("/fetcher", async function(req, res) {
+  let source = req.query.source;
+  let viewportWidth = req.query.width;
+
+  let size;
+  for (const [type, dimensions] of Object.entries(sizes)) {
+    let width = dimensions[0];
+    size = type;
+    if (viewportWidth <= width) {
+      break;
+    }
+  }
+
+  return res.redirect(`/from/${source}/${size}`);
+});
+
+async function writePage(source, url, size, width, height) {
   const pageDocument = await render.fetchPage(
     isProd,
     source,
@@ -84,16 +118,36 @@ async function writePage(source, url) {
     width,
     height
   );
-  fs.writeFileSync(`${source}.page.json`, JSON.stringify(pageDocument));
+  fs.writeFileSync(
+    `data/${source}.page-${size}.json`,
+    JSON.stringify(pageDocument)
+  );
 }
 const time = isProd ? "*/5" : "*/1";
 cron.schedule(`${time} * * * *`, async function() {
-  await writePage("nytimes", "https://www.nytimes.com/");
-  await writePage("guardian", "https://www.theguardian.com/");
-  await writePage("le-monde", "https://www.lemonde.fr/");
-  await writePage("der-spiegel", "https://www.spiegel.de/");
-  await writePage("el-pais", "https://elpais.com/");
-  await writePage("asahi", "https://www.asahi.com/");
+  // TODO: intentional attempt at sync work, could probably be cleaned up
+  for (const [size, dimensions] of Object.entries(sizes)) {
+    let width = dimensions[0],
+      height = dimensions[1];
+    await writePage("nytimes", "https://www.nytimes.com/", size, width, height);
+    await writePage(
+      "guardian",
+      "https://www.theguardian.com/",
+      size,
+      width,
+      height
+    );
+    await writePage("le-monde", "https://www.lemonde.fr/", size, width, height);
+    await writePage(
+      "der-spiegel",
+      "https://www.spiegel.de/",
+      size,
+      width,
+      height
+    );
+    await writePage("el-pais", "https://elpais.com/", size, width, height);
+    await writePage("asahi", "https://www.asahi.com/", size, width, height);
+  }
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
