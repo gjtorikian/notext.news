@@ -95,12 +95,12 @@ const time = isProd ? "*/10" : "*/1";
 cron.schedule(`${time} * * * *`, async function() {
   // TODO: intentional attempt at sync work, could probably be cleaned up
   for (const [size, _] of Object.entries(sizes)) {
-    // await render("nytimes", "https://www.nytimes.com/", size);
-    // await render("guardian", "https://www.theguardian.com/uk/", size);
-    // await render("le-monde", "https://www.lemonde.fr/", size);
+    await render("nytimes", "https://www.nytimes.com/", size);
+    await render("guardian", "https://www.theguardian.com/uk/", size);
+    await render("le-monde", "https://www.lemonde.fr/", size);
     await render("der-spiegel", "https://www.spiegel.de/", size);
-    // await render("el-pais", "https://elpais.com/", size);
-    // await render("asahi", "https://www.asahi.com/", size);
+    await render("el-pais", "https://elpais.com/", size);
+    await render("asahi", "https://www.asahi.com/", size);
   }
 });
 
