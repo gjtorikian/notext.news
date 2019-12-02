@@ -157,7 +157,7 @@ async function fetchPage(source, url, width, height) {
   });
   const page = await browser.newPage();
   await page.setViewport({ width: width, height: height });
-  await page.goto(url, { waitUntil: "networkidle0" });
+  await page.goto(url, { waitUntil: "networkidle2" });
 
   // load dynamic content
   await autoScroll(page);
