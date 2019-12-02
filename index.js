@@ -132,7 +132,7 @@ async function autoScroll(page) {
   await page.evaluate(async () => {
     await new Promise((resolve, reject) => {
       let totalHeight = 0;
-      let distance = 500;
+      let distance = 1000;
       let timer = setInterval(() => {
         let scrollHeight = document.body.scrollHeight;
         window.scrollBy(0, distance);
@@ -157,7 +157,7 @@ async function fetchPage(source, url, width, height) {
   });
   const page = await browser.newPage();
   await page.setViewport({ width: width, height: height });
-  await page.goto(url, { waitUntil: "networkidle2" });
+  await page.goto(url, { waitUntil: "networkidle0" });
 
   // load dynamic content
   await autoScroll(page);
