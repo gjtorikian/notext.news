@@ -30,7 +30,7 @@ async function autoScroll(page) {
   await page.evaluate(async () => {
     await new Promise((resolve, reject) => {
       let totalHeight = 0;
-      let distance = 500;
+      let distance = 700;
       let timer = setInterval(() => {
         let scrollHeight = document.body.scrollHeight;
         window.scrollBy(0, distance);
@@ -40,9 +40,9 @@ async function autoScroll(page) {
           setTimeout(function() {
             clearInterval(timer);
             resolve();
-          }, 1000);
+          }, 700);
         }
-      }, 1000);
+      }, 700);
     });
   });
 }
@@ -68,145 +68,170 @@ async function fetchPage(isProd, source, url, width, height) {
   // click cookie buttons
   await removeBanners(source, page);
 
-  const pageDocument = await page.evaluate(url => {
-    function localize(tag, attribute, url) {
-      let elements = document.getElementsByTagName(tag);
-      for (let el of elements) {
-        let original = el.getAttribute(attribute);
-        // rewrite "/" but not "//"
-        if (original !== null && original[0] == "/" && original[1] != "/") {
-          el.setAttribute(attribute, `${url}${original}`);
+  const pageDocument = await page.evaluate(
+    (url, source) => {
+      function localize(tag, attribute, url) {
+        let elements = document.getElementsByTagName(tag);
+        for (let el of elements) {
+          let original = el.getAttribute(attribute);
+          // rewrite "/" but not "//"
+          if (original !== null && original[0] == "/" && original[1] != "/") {
+            el.setAttribute(attribute, `${url}${original}`);
+          }
         }
       }
-    }
-    localize("link", "href", url);
-    localize("script", "src", url);
-    localize("img", "src", url);
+      localize("link", "href", url);
+      localize("script", "src", url);
+      localize("img", "src", url);
 
-    // some complex CSS styles added by JS need to be manually recreated
-    function applyJSCSS() {
-      let cssRules = [];
-      let styles = document.querySelectorAll("style");
-      for (style of styles) {
-        // we only care about sneaky JS styles
-        // if (style.innerText == "") {
-        //   continue;
-        // }
-        let rules = style.sheet.rules;
-        for (rule of rules) {
-          cssRules.push(rule.cssText);
+      // some complex CSS styles added by JS need to be manually recreated
+      function applyJSCSS() {
+        let cssRules = [];
+        let styles = document.querySelectorAll("style");
+        for (style of styles) {
+          // we only care about sneaky JS styles
+          // if (style.innerText == "") {
+          //   continue;
+          // }
+          let rules = style.sheet.rules;
+          for (rule of rules) {
+            cssRules.push(rule.cssText);
+          }
         }
+        let cssRulesAppended = cssRules.join(" ");
+
+        let styleTag = document.createElement("style");
+        styleTag.type = "text/css";
+        styleTag.appendChild(document.createTextNode(cssRulesAppended));
+
+        return styleTag;
       }
-      let cssRulesAppended = cssRules.join(" ");
 
-      let styleTag = document.createElement("style");
-      styleTag.type = "text/css";
-      styleTag.appendChild(document.createTextNode(cssRulesAppended));
+      let head = document.head;
+      head.appendChild(applyJSCSS());
 
-      return styleTag;
-    }
+      // https://stackoverflow.com/questions/10730309/find-all-text-nodes-in-html-page
+      function walkNodeTree(root, options) {
+        options = options || {};
 
-    let head = document.head;
-    head.appendChild(applyJSCSS());
-
-    // https://stackoverflow.com/questions/10730309/find-all-text-nodes-in-html-page
-    function walkNodeTree(root, options) {
-      options = options || {};
-
-      const inspect = options.inspect || (n => true),
-        collect = options.collect || (n => true);
-      const walker = document.createTreeWalker(root, NodeFilter.SHOW_ALL, {
-        acceptNode: function(node) {
-          if (!inspect(node)) {
-            return NodeFilter.FILTER_REJECT;
+        const inspect = options.inspect || (n => true),
+          collect = options.collect || (n => true);
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_ALL, {
+          acceptNode: function(node) {
+            if (!inspect(node)) {
+              return NodeFilter.FILTER_REJECT;
+            }
+            if (!collect(node)) {
+              return NodeFilter.FILTER_SKIP;
+            }
+            return NodeFilter.FILTER_ACCEPT;
           }
-          if (!collect(node)) {
-            return NodeFilter.FILTER_SKIP;
-          }
-          return NodeFilter.FILTER_ACCEPT;
+        });
+
+        const nodes = [];
+        let n;
+        while ((n = walker.nextNode())) {
+          options.callback && options.callback(n);
+          nodes.push(n);
+        }
+
+        return nodes;
+      }
+
+      function textNodesUnder(el, callback) {
+        return walkNodeTree(el, {
+          inspect: n => !["STYLE", "SCRIPT"].includes(n.nodeName),
+          collect: n => n.nodeType === Node.TEXT_NODE,
+          callback: n => callback(n)
+        });
+      }
+
+      // replace all text with nbsp
+      textNodesUnder(document.body, function(el) {
+        if (el.textContent.trim().length > 0) {
+          el.textContent = "\u00A0";
         }
       });
 
-      const nodes = [];
-      let n;
-      while ((n = walker.nextNode())) {
-        options.callback && options.callback(n);
-        nodes.push(n);
-      }
-
-      return nodes;
-    }
-
-    function textNodesUnder(el, callback) {
-      return walkNodeTree(el, {
-        inspect: n => !["STYLE", "SCRIPT"].includes(n.nodeName),
-        collect: n => n.nodeType === Node.TEXT_NODE,
-        callback: n => callback(n)
-      });
-    }
-
-    // replace all text with nbsp
-    textNodesUnder(document.body, function(el) {
-      if (el.textContent.trim().length > 0) {
-        el.textContent = "\u00A0";
-      }
-    });
-
-    function removeLinks() {
-      let anchors = document.getElementsByTagName("a");
-      for (a of anchors) {
-        a.removeAttribute("href");
-      }
-    }
-    // remove all clickable links
-    removeLinks();
-
-    function clearInput(tagName) {
-      let nodes = document.getElementsByTagName(tagName);
-      for (let n = 0; n < nodes.length; n++) {
-        if (nodes[n].value.trim().length > 0) {
-          nodes[n].setAttribute("value", "");
+      function removeLinks() {
+        let anchors = document.getElementsByTagName("a");
+        for (a of anchors) {
+          a.removeAttribute("href");
         }
       }
-    }
-    // remove prefilled input values
-    clearInput("input");
+      // remove all clickable links
+      removeLinks();
 
-    function removeElement(tagName) {
-      let elements = document.getElementsByTagName(tagName);
-      while (elements[0]) elements[0].parentNode.removeChild(elements[0]);
-    }
+      function clearInput(tagName) {
+        let nodes = document.getElementsByTagName(tagName);
+        for (let n = 0; n < nodes.length; n++) {
+          if (nodes[n].value.trim().length > 0) {
+            nodes[n].setAttribute("value", "");
+          }
+        }
+      }
+      // remove prefilled input values
+      clearInput("input");
 
-    // remove problematic elements
-    removeElement("meta");
-    removeElement("script");
-    removeElement("noscript");
-    removeElement("title");
-    removeElement("iframe");
+      function removeElement(tagName, attr, value) {
+        let elements = [],
+          tags = document.getElementsByTagName(tagName);
+        if (attr !== undefined) {
+          for (let i = 0; i < tags.length; i++) {
+            if (tags[i].getAttribute(attr) == value) {
+              elements.push(tags[i]);
+            }
+          }
+        } else {
+          elements = tags;
+        }
+        while (elements[0]) {
+          if (elements[0].parentNode) {
+            elements[0].parentNode.removeChild(elements[0]);
+          } else {
+            elements.shift().remove();
+          }
+        }
+      }
 
-    let htmlTag = document.getElementsByTagName("html")[0];
-    let htmlClasses;
-    if (htmlTag.classList.length > 0) {
-      htmlClasses = htmlTag.className;
-    } else {
-      htmlClasses = ["no-class-list-found"];
-    }
-    let htmlLang = htmlTag.getAttribute("lang");
-    let bodyClasses;
-    if (document.body.classList > 0) {
-      bodyClasses = htmlTag.className;
-    } else {
-      bodyClasses = ["no-class-list-found"];
-    }
+      // remove problematic elements
+      removeElement("meta");
+      removeElement("script");
+      removeElement("noscript");
+      removeElement("title");
+      removeElement("iframe");
+      removeElement("link", "rel", "icon");
+      if (source == "el-pais") {
+        removeElement("div", "id", "sticky-pbs");
+      }
 
-    return {
-      htmlClasses,
-      htmlLang,
-      bodyClasses,
-      headHTML: document.head.innerHTML,
-      bodyHTML: document.body.innerHTML
-    };
-  }, url);
+      let htmlTag = document.getElementsByTagName("html")[0];
+      let htmlClasses;
+      if (htmlTag.classList.length > 0) {
+        htmlClasses = htmlTag.className;
+      } else {
+        htmlClasses = ["no-class-list-found"];
+      }
+      let htmlLang = htmlTag.getAttribute("lang");
+      let bodyClasses;
+      if (document.body.classList.length > 0) {
+        bodyClasses = document.body.className;
+      } else {
+        bodyClasses = ["no-class-list-found"];
+      }
+
+      return {
+        htmlClasses,
+        htmlLang,
+        bodyId: document.body.id,
+        bodyClasses,
+        headHTML: document.head.innerHTML,
+        bodyHTML: document.body.innerHTML
+      };
+    },
+    url,
+    source
+  );
 
   await browser.close();
 

@@ -33,7 +33,10 @@ if (isProd) {
 }
 
 app.get("/", async function(req, res) {
-  return res.render("index", { title: "NoText News" });
+  return res.render("index", {
+    title: "NoText News",
+    data: { htmlLang: "en" }
+  });
 });
 
 app.get("/:source", async function(req, res) {
@@ -83,13 +86,14 @@ async function writePage(source, url) {
   );
   fs.writeFileSync(`${source}.page.json`, JSON.stringify(pageDocument));
 }
-cron.schedule("*/5 * * * *", async function() {
-  await writePage("nytimes", "https://www.nytimes.com/");
-  await writePage("guardian", "https://www.theguardian.com/");
-  await writePage("le-monde", "https://www.lemonde.fr/");
-  await writePage("der-spiegel", "https://www.spiegel.de/");
+const time = isProd ? "*/5" : "*/1";
+cron.schedule(`${time} * * * *`, async function() {
+  // await writePage("nytimes", "https://www.nytimes.com/");
+  // await writePage("guardian", "https://www.theguardian.com/");
+  // await writePage("le-monde", "https://www.lemonde.fr/");
+  // await writePage("der-spiegel", "https://www.spiegel.de/");
   await writePage("el-pais", "https://elpais.com/");
-  await writePage("asahi", "https://www.asahi.com/");
+  // await writePage("asahi", "https://www.asahi.com/");
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));

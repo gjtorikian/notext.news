@@ -4,9 +4,7 @@
     {{> _meta}}
     {{{data.headHTML}}}
   </head>
-  <body class="{{data.bodyClasses}}">
-    <div id="nt-news-body-text">
+  <body id="{{data.bodyId}}" class="nt-news-body-text {{data.bodyClasses}}">
     {{{data.bodyHTML}}}
-    </div>
   </body>
 </html>
