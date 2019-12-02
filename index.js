@@ -120,7 +120,7 @@ cron.schedule(`${time} * * * *`, async function() {
     await writePage("nytimes", "https://www.nytimes.com/", size, width, height);
     await writePage(
       "guardian",
-      "https://www.theguardian.com/",
+      "https://www.theguardian.com/uk/",
       size,
       width,
       height
