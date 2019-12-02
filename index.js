@@ -39,13 +39,8 @@ app.get("/", async function(req, res) {
   });
 });
 
-app.get("/from/:source/:size?", async function(req, res) {
+app.get("/from/:source", async function(req, res) {
   let source = req.params.source;
-  let size = req.params.size;
-
-  if (!size) {
-    return res.redirect(`/sizer?source=${source}`);
-  }
 
   let name;
   switch (source) {
@@ -71,12 +66,10 @@ app.get("/from/:source/:size?", async function(req, res) {
       return res.sendStatus(404);
   }
 
-  const data = JSON.parse(fs.readFileSync(`data/${source}.page-${size}.json`));
   return res.render("news", {
     source: source,
     name: name,
-    title: `NoText: ${name}`,
-    data: data
+    title: `NoText: ${name}`
   });
 });
 
@@ -87,16 +80,9 @@ const sizes = {
   xlarge: [1200, 667]
 };
 
-app.get("/sizer", async function(req, res) {
-  let source = req.query.source;
-  return res.render("sizer", {
-    source: source
-  });
-});
-
-app.get("/fetcher", async function(req, res) {
-  let source = req.query.source;
-  let viewportWidth = req.query.width;
+app.get("/sizer/:source/:width", async function(req, res) {
+  let source = req.params.source;
+  let viewportWidth = Number(req.params.width);
 
   let size;
   for (const [type, dimensions] of Object.entries(sizes)) {
@@ -107,7 +93,9 @@ app.get("/fetcher", async function(req, res) {
     }
   }
 
-  return res.redirect(`/from/${source}/${size}`);
+  const data = fs.readFileSync(`data/${source}.page-${size}.json`);
+
+  return res.send(data);
 });
 
 async function writePage(source, url, size, width, height) {

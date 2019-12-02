@@ -1,10 +1,40 @@
 <!DOCTYPE html>
-<html lang="{{data.htmlLang}}" class="{{data.htmlClasses}}">
+<html>
   <head>
     {{> _meta}}
-    {{{data.headHTML}}}
   </head>
-  <body id="{{data.bodyId}}" class="nt-news-body-text {{data.bodyClasses}}">
-    {{{data.bodyHTML}}}
+  <body class="nt-news-body-text">
+
+    <script>
+    function viewport() {
+      var e = window, a = 'inner';
+      if ( !( 'innerWidth' in window ) ) {
+        a = 'client';
+        e = document.documentElement || document.body;
+      }
+      return { width : e[ a+'Width' ] , height : e[ a+'Height' ] }
+    }
+
+    window.addEventListener('DOMContentLoaded', async (event) => {
+      let source = "{{{source}}}"
+      let dimensions = viewport();
+      let width = dimensions.width
+
+      const response = await fetch(`/sizer/${source}/${width}`);
+      const news = await response.json();
+
+      let htmlTag = document.getElementsByTagName("html")[0];
+      htmlTag.classList += news.htmlClasses;
+      htmlTag.setAttribute("lang", news.htmlLang);
+
+      let head = document.head;
+      head.innerHTML += news.headHTML;
+
+      let body = document.body;
+      body.innerHTML += news.bodyHTML;
+      body.id = news.bodyId;
+      body.classList.className += news.bodyClasses;
+    });
+    </script>
   </body>
 </html>
