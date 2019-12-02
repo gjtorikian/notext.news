@@ -73,27 +73,23 @@ app.get("/:source", async function(req, res) {
 
 const width = 1366;
 const height = 768;
-const data = {
-  nytimes: "https://www.nytimes.com",
-  guardian: "https://www.theguardian.com",
-  "le-monde": "https://www.lemonde.fr/",
-  "der-spiegel": "https://www.spiegel.de",
-  "el-pais": "https://elpais.com/",
-  asahi: "https://www.asahi.com/"
-};
-
-cron.schedule("*/6 * * * *", function() {
-  Object.keys(data).forEach(async function(source) {
-    let url = data[source];
-    const pageDocument = await render.fetchPage(
-      isProd,
-      source,
-      url,
-      width,
-      height
-    );
-    fs.writeFileSync(`${source}.page.json`, JSON.stringify(pageDocument));
-  });
+async function writePage(source, url) {
+  const pageDocument = await render.fetchPage(
+    isProd,
+    source,
+    url,
+    width,
+    height
+  );
+  fs.writeFileSync(`${source}.page.json`, JSON.stringify(pageDocument));
+}
+cron.schedule("*/6 * * * *", async function() {
+  await writePage("nytimes", "https://www.nytimes.com/");
+  await writePage("guardian", "https://www.theguardian.com/");
+  await writePage("le-monde", "https://www.lemonde.fr/");
+  await writePage("der-spiegel", "https://www.spiegel.de/");
+  await writePage("el-pais", "https://elpais.com/");
+  await writePage("asahi", "https://www.asahi.com/");
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
