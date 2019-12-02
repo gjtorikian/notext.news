@@ -252,21 +252,22 @@ async function fetchPage(source, url, size, width, height) {
   return pageDocument;
 }
 
-const render = async function(source, url, size) {
-  let width = sizes[size].width,
-    height = sizes[size].height;
-  const pageDocument = await fetchPage(source, url, size, width, height);
-  fs.writeFileSync(
-    `data/${source}.page-${size}.json`,
-    JSON.stringify(pageDocument)
-  );
-};
-
 const sizes = {
   small: [375, 667],
   medium: [768, 667],
   large: [992, 667],
   xlarge: [1200, 667]
+};
+
+const render = async function(source, url, size) {
+  let width = sizes[size][0],
+    height = sizes[size][1];
+
+  const pageDocument = await fetchPage(source, url, size, width, height);
+  fs.writeFileSync(
+    `data/${source}.page-${size}.json`,
+    JSON.stringify(pageDocument)
+  );
 };
 
 module.exports = {
