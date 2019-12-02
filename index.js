@@ -80,10 +80,15 @@ app.get("/sizer/:source/:width", async function(req, res) {
   let size;
   for (const [type, dimensions] of Object.entries(sizes)) {
     let width = dimensions[0];
-    size = type;
     if (viewportWidth <= width) {
+      if (size == undefined) {
+        size = type;
+      }
       break;
+    } else {
+      size = "xlarge";
     }
+    size = type;
   }
 
   const data = fs.readFileSync(`data/${source}.page-${size}.json`);
