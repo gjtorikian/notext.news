@@ -81,7 +81,14 @@ async function fetchPage(source, url, size, width, height) {
   await removeBanners(source, page);
 
   const pageDocument = await page.evaluate(
-    (source, url, size) => {
+    (source, size) => {
+      // some sites on mobile load from a `m` subdomain
+      let url = window.location.href;
+      let urlLength = url.length;
+      if (url.charAt(urlLength - 1) == "/") {
+        url = url.substring(0, urlLength - 1);
+      }
+
       function localize(tag, attribute, url) {
         let elements = document.getElementsByTagName(tag);
         for (let el of elements) {
@@ -243,7 +250,6 @@ async function fetchPage(source, url, size, width, height) {
       };
     },
     source,
-    url,
     size
   );
 
@@ -254,9 +260,9 @@ async function fetchPage(source, url, size, width, height) {
 
 const sizes = {
   small: [375, 667],
-  medium: [768, 667],
-  large: [992, 667],
-  xlarge: [1200, 667]
+  medium: [768, 1024],
+  large: [992, 1024],
+  xlarge: [1200, 1024]
 };
 
 const render = async function(source, url, size) {
