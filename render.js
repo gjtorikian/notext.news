@@ -1,4 +1,8 @@
+const fs = require("fs");
+
 const puppeteer = require("puppeteer");
+
+const isProd = process.env.NODE_ENV == "production";
 
 async function removeBanners(source, page) {
   if (source == "nytimes") {
@@ -47,14 +51,24 @@ async function autoScroll(page) {
   });
 }
 
-async function fetchPage(isProd, source, url, width, height) {
+async function fetchPage(source, url, size, width, height) {
   const browser = await puppeteer.launch({
     headless: isProd,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
     // slowMo: 300
   });
   const page = await browser.newPage();
-  await page.setViewport({ width: width, height: height });
+
+  let device;
+  if (size == "small") {
+    device = puppeteer.devices["iPhone 6"];
+    await page.emulate(device);
+  } else if (size == "medium") {
+    device = puppeteer.devices["iPad"];
+    await page.emulate(device);
+  } else {
+    await page.setViewport({ width: width, height: height });
+  }
 
   try {
     await page.goto(url, { waitUntil: "networkidle2", timeout: 90 * 1000 });
@@ -69,7 +83,7 @@ async function fetchPage(isProd, source, url, width, height) {
   await removeBanners(source, page);
 
   const pageDocument = await page.evaluate(
-    (url, source) => {
+    (source, url) => {
       function localize(tag, attribute, url) {
         let elements = document.getElementsByTagName(tag);
         for (let el of elements) {
@@ -229,8 +243,8 @@ async function fetchPage(isProd, source, url, width, height) {
         bodyHTML: document.body.innerHTML
       };
     },
-    url,
-    source
+    source,
+    url
   );
 
   await browser.close();
@@ -238,4 +252,10 @@ async function fetchPage(isProd, source, url, width, height) {
   return pageDocument;
 }
 
-exports.fetchPage = fetchPage;
+module.exports = async function(source, url, size, width, height) {
+  const pageDocument = await fetchPage(source, url, size, width, height);
+  fs.writeFileSync(
+    `data/${source}.page-${size}.json`,
+    JSON.stringify(pageDocument)
+  );
+};

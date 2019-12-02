@@ -74,7 +74,7 @@ app.get("/from/:source", async function(req, res) {
 });
 
 const sizes = {
-  small: [576, 667],
+  small: [375, 667],
   medium: [768, 667],
   large: [992, 667],
   xlarge: [1200, 667]
@@ -98,43 +98,24 @@ app.get("/sizer/:source/:width", async function(req, res) {
   return res.send(data);
 });
 
-async function writePage(source, url, size, width, height) {
-  const pageDocument = await render.fetchPage(
-    isProd,
-    source,
-    url,
-    width,
-    height
-  );
-  fs.writeFileSync(
-    `data/${source}.page-${size}.json`,
-    JSON.stringify(pageDocument)
-  );
-}
 const time = isProd ? "*/10" : "*/1";
 cron.schedule(`${time} * * * *`, async function() {
   // TODO: intentional attempt at sync work, could probably be cleaned up
   for (const [size, dimensions] of Object.entries(sizes)) {
     let width = dimensions[0],
       height = dimensions[1];
-    await writePage("nytimes", "https://www.nytimes.com/", size, width, height);
-    await writePage(
+    await render("nytimes", "https://www.nytimes.com/", size, width, height);
+    await render(
       "guardian",
       "https://www.theguardian.com/uk/",
       size,
       width,
       height
     );
-    await writePage("le-monde", "https://www.lemonde.fr/", size, width, height);
-    await writePage(
-      "der-spiegel",
-      "https://www.spiegel.de/",
-      size,
-      width,
-      height
-    );
-    await writePage("el-pais", "https://elpais.com/", size, width, height);
-    await writePage("asahi", "https://www.asahi.com/", size, width, height);
+    await render("le-monde", "https://www.lemonde.fr/", size, width, height);
+    await render("der-spiegel", "https://www.spiegel.de/", size, width, height);
+    await render("el-pais", "https://elpais.com/", size, width, height);
+    await render("asahi", "https://www.asahi.com/", size, width, height);
   }
 });
 
