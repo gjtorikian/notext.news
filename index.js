@@ -62,6 +62,9 @@ app.get("/from/:source", async function(req, res) {
     case "asahi":
       name = "朝日新聞";
       break;
+    case "la-pais":
+      name = "la Repubblica";
+      break;
     default:
       return res.sendStatus(404);
   }
@@ -106,6 +109,7 @@ cron.schedule(`${time} * * * *`, async function() {
     await render("der-spiegel", "https://www.spiegel.de", size);
     await render("el-pais", "https://elpais.com", size);
     await render("asahi", "https://www.asahi.com", size);
+    await render("la-repubblica", "https://www.repubblica.it", size);
   }
 });
 
