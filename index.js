@@ -4,9 +4,6 @@ const fs = require("fs");
 const express = require("express");
 const app = express();
 const port = 3000;
-
-const cron = require("node-cron");
-
 const { render, sizes, sources } = require("./render");
 
 const VIEWS_PATH = path.join(__dirname, "views");
@@ -79,14 +76,17 @@ app.get("/sizer/:source/:width", async function(req, res) {
   return res.send(data);
 });
 
-const time = isProd ? "*/10" : "*/1";
-cron.schedule(`${time} * * * *`, async function() {
-  // intentional sync work
+app.listen(port, () => console.log(`Listening on port ${port}`));
+
+this.run = async () => {
+  // intentional sync work; little DO box can't handle more than one
   for (const size of Object.keys(sizes)) {
     for (const source of Object.keys(sources)) {
       await render(source, size);
     }
   }
-});
 
-app.listen(port, () => console.log(`Listening on port ${port}`));
+  setTimeout(this.run, 1000 - new Date().getMilliseconds() + 1);
+};
+
+this.run();
