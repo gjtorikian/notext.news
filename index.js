@@ -7,7 +7,7 @@ const port = 3000;
 
 const cron = require("node-cron");
 
-const { render, sizes } = require("./render");
+const { render, sizes, sources } = require("./render");
 
 const VIEWS_PATH = path.join(__dirname, "views");
 
@@ -41,33 +41,13 @@ app.get("/", async function(req, res) {
 
 app.get("/from/:source", async function(req, res) {
   let source = req.params.source;
+  let s = sources[source];
 
-  let name;
-  switch (source) {
-    case "nytimes":
-      name = "New York Times";
-      break;
-    case "guardian":
-      name = "Guardian";
-      break;
-    case "le-monde":
-      name = "Le Monde";
-      break;
-    case "der-spiegel":
-      name = "Der Spiegel";
-      break;
-    case "el-pais":
-      name = "El País";
-      break;
-    case "asahi":
-      name = "朝日新聞";
-      break;
-    case "la-pais":
-      name = "la Repubblica";
-      break;
-    default:
-      return res.sendStatus(404);
+  if (s == undefined) {
+    return res.sendStatus(404);
   }
+
+  let name = s.name;
 
   return res.render("news", {
     source: source,
@@ -101,15 +81,11 @@ app.get("/sizer/:source/:width", async function(req, res) {
 
 const time = isProd ? "*/10" : "*/1";
 cron.schedule(`${time} * * * *`, async function() {
-  // TODO: intentional attempt at sync work, could probably be cleaned up
+  // intentional sync work
   for (const size of Object.keys(sizes)) {
-    await render("nytimes", "https://www.nytimes.com", size);
-    await render("guardian", "https://www.theguardian.com/uk", size);
-    await render("le-monde", "https://www.lemonde.fr", size);
-    await render("der-spiegel", "https://www.spiegel.de", size);
-    await render("el-pais", "https://elpais.com", size);
-    await render("asahi", "https://www.asahi.com", size);
-    await render("la-repubblica", "https://www.repubblica.it", size);
+    for (const source of Object.keys(sources)) {
+      await render(source, size);
+    }
   }
 });
 

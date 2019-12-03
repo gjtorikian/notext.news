@@ -259,15 +259,26 @@ async function fetchPage(source, url, size, width, height) {
 }
 
 const sizes = {
-  small: [375, 667],
-  medium: [768, 1024],
-  large: [992, 1024],
-  xlarge: [1200, 1024]
+  small: { width: 375, height: 667 },
+  medium: { width: 768, height: 1024 },
+  large: { width: 992, height: 1024 },
+  xlarge: { width: 1200, height: 1024 }
 };
 
-const render = async function(source, url, size) {
-  let width = sizes[size][0],
-    height = sizes[size][1];
+const sources = {
+  nytimes: { url: "https://www.nytimes.com", name: "New York Times" },
+  guardian: { url: "https://www.theguardian.com/uk", name: "The Guardian" },
+  "le-monde": { url: "https://www.lemonde.fr", name: "Le Monde" },
+  "der-spiegel": { url: "https://www.spiegel.de", name: "Der Spiegel" },
+  "el-pais": { url: "https://elpais.com", name: "El País" },
+  asahi: { url: "https://www.asahi.com", name: "朝日新聞" },
+  "la-repubblica": { url: "https://www.repubblica.it", name: "la Repubblica" }
+};
+
+const render = async function(source, size) {
+  let width = sizes[size].width,
+    height = sizes[size].height,
+    url = sources[source].url;
 
   const pageDocument = await fetchPage(source, url, size, width, height);
   fs.writeFileSync(
@@ -278,5 +289,6 @@ const render = async function(source, url, size) {
 
 module.exports = {
   render: render,
-  sizes: sizes
+  sizes: sizes,
+  sources: sources
 };
