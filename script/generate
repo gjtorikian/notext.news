@@ -2,7 +2,7 @@
 const { render } = require("../render");
 
 async function generate() {
-  await render("der-spiegel", "small");
+  await render("la-repubblica", "small");
 }
 
 generate();

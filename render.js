@@ -266,13 +266,33 @@ const sizes = {
 };
 
 const sources = {
-  nytimes: { url: "https://www.nytimes.com", name: "New York Times" },
-  guardian: { url: "https://www.theguardian.com/uk", name: "The Guardian" },
-  "le-monde": { url: "https://www.lemonde.fr", name: "Le Monde" },
-  "der-spiegel": { url: "https://www.spiegel.de", name: "Der Spiegel" },
-  "el-pais": { url: "https://elpais.com", name: "El País" },
-  asahi: { url: "https://www.asahi.com", name: "朝日新聞" },
-  "la-repubblica": { url: "https://www.repubblica.it", name: "la Repubblica" }
+  nytimes: {
+    url: "https://www.nytimes.com",
+    name: "New York Times",
+    htmlLang: "en"
+  },
+  guardian: {
+    url: "https://www.theguardian.com/uk",
+    name: "The Guardian",
+    htmlLang: "en"
+  },
+  "le-monde": {
+    url: "https://www.lemonde.fr",
+    name: "Le Monde",
+    htmlLang: "fr"
+  },
+  "der-spiegel": {
+    url: "https://www.spiegel.de",
+    name: "Der Spiegel",
+    htmlLang: "de"
+  },
+  "el-pais": { url: "https://elpais.com", name: "El País", htmlLang: "es" },
+  asahi: { url: "https://www.asahi.com", name: "朝日新聞", htmlLang: "jp" },
+  "la-repubblica": {
+    url: "https://www.repubblica.it",
+    name: "la Repubblica",
+    htmlLang: "it"
+  }
 };
 
 const render = async function(source, size) {

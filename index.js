@@ -32,7 +32,7 @@ if (isProd) {
 app.get("/", async function(req, res) {
   return res.render("index", {
     title: "NoText News",
-    data: { htmlLang: "en" }
+    htmlLang: "en"
   });
 });
 
@@ -45,10 +45,12 @@ app.get("/from/:source", async function(req, res) {
   }
 
   let name = s.name;
+  let htmlLang = s.htmlLang;
 
   return res.render("news", {
     source: source,
     name: name,
+    htmlLang: htmlLang,
     title: `NoText: ${name}`
   });
 });
