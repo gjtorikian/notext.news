@@ -53,7 +53,7 @@ async function fetchPage(source, url, size, width, height) {
   const browser = await puppeteer.launch({
     headless: isProd,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
-    // slowMo: 300
+    // slowMo: 1000
   });
   const page = await browser.newPage();
 
@@ -67,6 +67,14 @@ async function fetchPage(source, url, size, width, height) {
   } else {
     await page.setViewport({ width: width, height: height });
   }
+
+  await page.setRequestInterception(true);
+  page.on("request", request => {
+    // some crazy redirecting spywar bullshit
+    if (source == "la-repubblica" && request.url().includes("kataweb.it"))
+      request.abort();
+    else request.continue();
+  });
 
   try {
     await page.goto(url, { waitUntil: "networkidle2", timeout: 90 * 1000 });
