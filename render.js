@@ -70,7 +70,7 @@ async function fetchPage(source, url, size, width, height) {
 
   await page.setRequestInterception(true);
   page.on("request", request => {
-    // some crazy redirecting spywar bullshit
+    // some crazy redirecting spyware bullshit
     if (source == "la-repubblica" && request.url().includes("kataweb.it"))
       request.abort();
     else request.continue();
