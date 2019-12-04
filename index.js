@@ -61,7 +61,7 @@ app.get("/sizer/:source/:width", async function(req, res) {
 
   let size;
   for (const [type, dimensions] of Object.entries(sizes)) {
-    let width = dimensions[0];
+    let width = dimensions.width;
     if (viewportWidth <= width) {
       if (size == undefined) {
         size = type;

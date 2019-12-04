@@ -68,15 +68,15 @@ async function fetchPage(source, url, size, width, height) {
     await page.setViewport({ width: width, height: height });
   }
 
-  await page.setRequestInterception(true);
-  page.on("request", request => {
-    // some crazy redirecting spyware bullshit
-    if (source == "la-repubblica" && request.url().includes("kataweb.it"))
-      request.abort();
-    else request.continue();
-  });
-
   try {
+    await page.setRequestInterception(true);
+    page.on("request", request => {
+      // some crazy redirecting spyware bullshit
+      if (source == "la-repubblica" && request.url().includes("kataweb.it"))
+        request.abort();
+      else request.continue();
+    });
+
     await page.goto(url, { waitUntil: "networkidle2", timeout: 90 * 1000 });
   } catch (e) {
     await browser.close();
