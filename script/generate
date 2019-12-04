@@ -1,8 +1,14 @@
 #!/usr/bin/env node
-const { render } = require("../render");
+const { render, sizes } = require("../render");
 
 async function generate() {
-  await render("la-repubblica", "small");
+  if (process.argv[3] == "all") {
+    for (const size of Object.keys(sizes)) {
+      await render(process.argv[2], size);
+    }
+  } else {
+    await render(process.argv[2], process.argv[3]);
+  }
 }
 
 generate();
