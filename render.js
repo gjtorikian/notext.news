@@ -78,12 +78,12 @@ async function fetchPage(source, url, size, width, height) {
     });
 
     await page.goto(url, { waitUntil: "networkidle2", timeout: 90 * 1000 });
-  } catch (e) {
-    await browser.close();
-  }
 
-  // load dynamic content
-  await autoScroll(page);
+    // load dynamic content
+    await autoScroll(page);
+  } catch (e) {
+    return await browser.close();
+  }
 
   // click cookie buttons
   await removeBanners(source, page);

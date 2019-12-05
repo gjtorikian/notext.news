@@ -79,7 +79,7 @@ app.get("/sizer/:source/:width", async function(req, res) {
 });
 
 process.on("uncaughtException", function(e) {
-  console.error(`An error occured: ${e}\n${e.stack}"`);
+  console.error(`An error occurred: ${e}\n${e.stack}"`);
   process.exit(1);
 });
 
