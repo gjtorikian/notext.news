@@ -263,8 +263,8 @@ async function fetchPage(source, url, size, width, height) {
         htmlLang,
         bodyId: document.body.id,
         bodyClasses,
-        headHTML: document.head.innerHTML,
-        bodyHTML: document.body.innerHTML
+        headHTML: document.head.innerHTML.replace(/\n/g, ""),
+        bodyHTML: document.body.innerHTML.replace(/\n/g, "")
       };
     },
     source,
