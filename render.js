@@ -81,7 +81,9 @@ async function fetchPage(source, url, size, width, height) {
         (source == "la-repubblica" && request.url().includes("kataweb.it")) ||
         request.resourceType() == "font" ||
         (request.resourceType() == "other" &&
-          /(?:pay|payments)\.google\.com/.test(request.url()))
+          /(?:pay|payments)\.google\.com/.test(request.url())) ||
+        (request.resourceType() == "script" &&
+          /adsbygoogle\.js$/.test(request.url()))
       )
         request.abort();
       else request.continue();
