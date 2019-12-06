@@ -68,11 +68,21 @@ async function fetchPage(source, url, size, width, height) {
     await page.setViewport({ width: width, height: height });
   }
 
+  await page.setRequestInterception(true);
+
   try {
-    await page.setRequestInterception(true);
     page.on("request", request => {
+      if (!isProd) {
+        console.log(`${request.resourceType()}: ${request.url()}`);
+      }
+
       // some crazy redirecting spyware bullshit
-      if (source == "la-repubblica" && request.url().includes("kataweb.it"))
+      if (
+        (source == "la-repubblica" && request.url().includes("kataweb.it")) ||
+        request.resourceType() == "font" ||
+        (request.resourceType() == "other" &&
+          /(?:pay|payments)\.google\.com/.test(request.url()))
+      )
         request.abort();
       else request.continue();
     });
