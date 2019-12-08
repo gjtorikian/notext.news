@@ -2,8 +2,6 @@ const fs = require("fs");
 
 const puppeteer = require("puppeteer");
 
-const minify = require("html-minifier").minify;
-
 const isProd = process.env.NODE_ENV == "production";
 
 async function removeBanners(source, page) {
@@ -277,19 +275,9 @@ async function fetchPage(source, url, size, width, height) {
 
   await browser.close();
   const newlineRegExp = new RegExp(/\n/g);
-  const options = {
-    removeComments: true,
-    collapseBooleanAttributes: true,
-    removeAttributeQuotes: true
-  };
-  pageDocument.headHTML = minify(
-    pageDocument.headHTML.replace(newlineRegExp, ""),
-    options
-  );
-  pageDocument.bodyHTML = minify(
-    pageDocument.bodyHTML.replace(newlineRegExp, ""),
-    options
-  );
+
+  pageDocument.headHTML = pageDocument.headHTML.replace(newlineRegExp, "");
+  pageDocument.bodyHTML = pageDocument.bodyHTML.replace(newlineRegExp, "");
 
   return pageDocument;
 }
