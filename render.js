@@ -2,6 +2,8 @@ const fs = require("fs");
 
 const puppeteer = require("puppeteer");
 
+const minify = require("html-minifier").minify;
+
 const isProd = process.env.NODE_ENV == "production";
 
 async function removeBanners(source, page) {
@@ -76,14 +78,14 @@ async function fetchPage(source, url, size, width, height) {
         console.log(`${request.resourceType()}: ${request.url()}`);
       }
 
-      // some crazy redirecting spyware bullshit
       if (
-        (source == "la-repubblica" && request.url().includes("kataweb.it")) ||
         request.resourceType() == "font" ||
         (request.resourceType() == "other" &&
           /(?:pay|payments)\.google\.com/.test(request.url())) ||
         (request.resourceType() == "script" &&
-          /adsbygoogle\.js$/.test(request.url()))
+          /adsbygoogle\.js$/.test(request.url())) ||
+        // some crazy redirecting spyware bullshit
+        (source == "la-repubblica" && request.url().includes("kataweb.it"))
       )
         request.abort();
       else request.continue();
@@ -265,8 +267,8 @@ async function fetchPage(source, url, size, width, height) {
         htmlLang,
         bodyId: document.body.id,
         bodyClasses,
-        headHTML: document.head.innerHTML.replace(/\n/g, ""),
-        bodyHTML: document.body.innerHTML.replace(/\n/g, "")
+        headHTML: document.head.innerHTML,
+        bodyHTML: document.body.innerHTML
       };
     },
     source,
@@ -274,6 +276,20 @@ async function fetchPage(source, url, size, width, height) {
   );
 
   await browser.close();
+  const newlineRegExp = new RegExp(/\n/g);
+  const options = {
+    removeComments: true,
+    collapseBooleanAttributes: true,
+    removeAttributeQuotes: true
+  };
+  pageDocument.headHTML = minify(
+    pageDocument.headHTML.replace(newlineRegExp, ""),
+    options
+  );
+  pageDocument.bodyHTML = minify(
+    pageDocument.bodyHTML.replace(newlineRegExp, ""),
+    options
+  );
 
   return pageDocument;
 }
