@@ -212,13 +212,19 @@ async function fetchPage(source, url, size, width, height) {
       // remove prefilled input values
       clearInput("input");
 
-      function removeElement(tagName, attr, value) {
+      function removeElement(tagName, attr, value, preserve) {
         let elements = [],
           tags = document.getElementsByTagName(tagName);
         if (attr !== undefined) {
           for (let i = 0; i < tags.length; i++) {
-            if (tags[i].getAttribute(attr) == value) {
-              elements.push(tags[i]);
+            if (preserve) {
+              if (tags[i].getAttribute(attr) != value) {
+                elements.push(tags[i]);
+              }
+            } else {
+              if (tags[i].getAttribute(attr) == value) {
+                elements.push(tags[i]);
+              }
             }
           }
         } else {
@@ -239,9 +245,9 @@ async function fetchPage(source, url, size, width, height) {
       removeElement("noscript");
       removeElement("title");
       removeElement("iframe");
-      removeElement("link", "rel", "icon");
+      removeElement("link", "rel", "stylesheet", true);
       if (source == "el-pais") {
-        removeElement("div", "id", "sticky-pbs");
+        removeElement("div", "id", "sticky-pbs", false);
       }
 
       let htmlTag = document.getElementsByTagName("html")[0];
