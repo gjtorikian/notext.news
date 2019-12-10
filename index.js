@@ -73,7 +73,12 @@ app.get("/sizer/:source/:width", async function(req, res) {
     size = type;
   }
 
-  const data = fs.readFileSync(`data/${source}.page-${size}.json`);
+  let data;
+  if (app.locals[`${source}-${size}`] === undefined) {
+    data = fs.readFileSync(`data/${source}.page-${size}.json`);
+  } else {
+    data = app.locals[`${source}-${size}`];
+  }
 
   return res.send(data);
 });
@@ -89,7 +94,8 @@ this.run = async () => {
   // intentional sync work; little DO box can't handle more than one
   for (const size of Object.keys(sizes)) {
     for (const source of Object.keys(sources)) {
-      await render(source, size);
+      const page = await render(source, size);
+      app.locals[`${source}-${size}`] = page;
     }
   }
 

@@ -325,10 +325,10 @@ const render = async function(source, size) {
     url = sources[source].url;
 
   const pageDocument = await fetchPage(source, url, size, width, height);
-  fs.writeFileSync(
-    `data/${source}.page-${size}.json`,
-    JSON.stringify(pageDocument)
-  );
+  const page = JSON.stringify(pageDocument);
+  fs.writeFileSync(`data/${source}.page-${size}.json`, page);
+
+  return page;
 };
 
 module.exports = {
