@@ -26,16 +26,17 @@
       console.log(`Applying ${news.size}`)
 
       let htmlTag = document.getElementsByTagName("html")[0];
+      let head = document.head;
+      let body = document.body;
+
       htmlTag.classList += ` ${news.htmlClasses}`;
       htmlTag.setAttribute("lang", news.htmlLang);
 
-      let head = document.head;
-      head.innerHTML += news.headHTML;
-
-      let body = document.body;
-      body.innerHTML += news.bodyHTML;
       body.id = news.bodyId;
       body.className += ` ${news.bodyClasses}`;
+
+      head.innerHTML += news.headHTML;
+      body.innerHTML += news.bodyHTML;
     }
 
     window.addEventListener('DOMContentLoaded', applyNews);
