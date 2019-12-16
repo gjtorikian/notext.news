@@ -245,6 +245,7 @@ async function fetchPage(source, url, size, width, height) {
       removeElement("noscript");
       removeElement("title");
       removeElement("iframe");
+      removeElement("link", "media", "print", false);
       removeElement("link", "rel", "stylesheet", true);
       if (source == "el-pais") {
         removeElement("div", "id", "sticky-pbs", false);
