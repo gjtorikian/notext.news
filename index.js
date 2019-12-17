@@ -32,7 +32,8 @@ if (isProd) {
 app.get("/", async function(req, res) {
   return res.render("index", {
     title: "NoText News",
-    htmlLang: "en"
+    htmlLang: "en",
+    url: ""
   });
 });
 
@@ -51,7 +52,8 @@ app.get("/from/:source", async function(req, res) {
     source: source,
     name: name,
     htmlLang: htmlLang,
-    title: `NoText: ${name}`
+    title: `NoText: ${name}`,
+    url: `from/${source}`
   });
 });
 
