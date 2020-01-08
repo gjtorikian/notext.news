@@ -5,28 +5,32 @@ const puppeteer = require("puppeteer");
 const isProd = process.env.NODE_ENV == "production";
 
 async function removeBanners(source, page) {
-  if (source == "nytimes") {
-    const [button] = await page.$x("//button[contains(., 'I Accept')]");
-    if (button) {
-      await button.click();
+  try {
+    if (source == "nytimes") {
+      const [button] = await page.$x("//button[contains(., 'I Accept')]");
+      if (button) {
+        await button.click();
+      }
+    } else if (source == "guardian") {
+      const [span] = await page.$x('//span[contains(., "I\'m OK with that")]');
+      if (span) {
+        const button = (await span.$x(".."))[0];
+        await button.click();
+      }
+    } else if (source == "el-pais") {
+      const [span] = await page.$x('//span[contains(., "Close")]');
+      if (span) {
+        const button = (await span.$x(".."))[0];
+        await button.click();
+      }
+    } else if (source == "asahi") {
+      const [a] = await page.$x('//a[contains(@class, "cc-btn")]');
+      if (a) {
+        await a.click();
+      }
     }
-  } else if (source == "guardian") {
-    const [span] = await page.$x('//span[contains(., "I\'m OK with that")]');
-    if (span) {
-      const button = (await span.$x(".."))[0];
-      await button.click();
-    }
-  } else if (source == "el-pais") {
-    const [span] = await page.$x('//span[contains(., "Close")]');
-    if (span) {
-      const button = (await span.$x(".."))[0];
-      await button.click();
-    }
-  } else if (source == "asahi") {
-    const [a] = await page.$x('//a[contains(@class, "cc-btn")]');
-    if (a) {
-      await a.click();
-    }
+  } catch (e) {
+    console.error(e);
   }
 }
 
