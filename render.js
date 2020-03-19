@@ -53,6 +53,10 @@ async function autoScroll(page) {
   });
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function fetchPage(source, url, size, width, height) {
   const browser = await puppeteer.launch({
     headless: isProd,
@@ -70,6 +74,21 @@ async function fetchPage(source, url, size, width, height) {
     await page.emulate(device);
   } else {
     await page.setViewport({ width: width, height: height });
+  }
+
+  // click a stupid accept banner
+  if (source == "der-spiegel") {
+    await page.goto(url, { waitUntil: "networkidle2", timeout: 90 * 1000 });
+
+    const [childSpan] = await page.$x(
+      '//button/span/span[contains(., "Akzeptieren")]'
+    );
+    if (childSpan) {
+      const parentSpan = (await childSpan.$x(".."))[0];
+      const button = (await parentSpan.$x(".."))[0];
+      await button.click();
+      await sleep(5000);
+    }
   }
 
   await page.setRequestInterception(true);
