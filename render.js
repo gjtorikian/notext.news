@@ -132,19 +132,22 @@ async function fetchPage(source, url, size, width, height) {
         url = url.substring(0, urlLength - 1);
       }
 
-      function localize(tag, attribute, url) {
+      function localize(tag, attribute, source, url) {
         let elements = document.getElementsByTagName(tag);
         for (let el of elements) {
           let original = el.getAttribute(attribute);
+          if (source == "el-pais" && tag == "link") {
+            original = original.replace("america/pf", "pf");
+          }
           // rewrite "/" but not "//"
           if (original !== null && original[0] == "/" && original[1] != "/") {
             el.setAttribute(attribute, `${url}${original}`);
           }
         }
       }
-      localize("link", "href", url);
-      localize("script", "src", url);
-      localize("img", "src", url);
+      localize("link", "href", source, url);
+      localize("script", "src", source, url);
+      localize("img", "src", source, url);
 
       // some complex CSS styles added by JS need to be manually recreated
       function applyJSCSS() {
