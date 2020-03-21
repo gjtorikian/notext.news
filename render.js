@@ -136,7 +136,8 @@ async function fetchPage(source, url, size, width, height) {
         let elements = document.getElementsByTagName(tag);
         for (let el of elements) {
           let original = el.getAttribute(attribute);
-          if (source == "el-pais" && tag == "link") {
+          // special El Pais CSS rewrite
+          if (original !== null && source == "el-pais" && tag == "link") {
             original = original.replace("america/pf", "pf");
           }
           // rewrite "/" but not "//"
