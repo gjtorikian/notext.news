@@ -1,13 +1,20 @@
 #!/usr/bin/env node
-const { render, sizes } = require("../render");
+const { render, sizes, sources } = require("../render");
 
 async function generate() {
-  if (process.argv[3] == "all") {
+  let sourceArg = process.argv[2];
+  let sizeArg = process.argv[3];
+
+  if (sourceArg == "all") {
+    for (const source of Object.keys(sources)) {
+      await render(source, sizeArg);
+    }
+  } else if (sizeArg == "all") {
     for (const size of Object.keys(sizes)) {
-      await render(process.argv[2], size);
+      await render(sourceArg, size);
     }
   } else {
-    await render(process.argv[2], process.argv[3]);
+    await render(sourceArg, sizeArg);
   }
 }
 
