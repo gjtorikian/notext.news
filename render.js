@@ -4,7 +4,7 @@ const puppeteer = require("puppeteer");
 
 const isProd = process.env.NODE_ENV == "production";
 
-async function removeBanners(source, page) {
+async function removeBanners(source, size, page) {
   try {
     if (source == "nytimes") {
       const [button] = await page.$x("//button[contains(., 'I Accept')]");
@@ -30,6 +30,7 @@ async function removeBanners(source, page) {
       }
     }
   } catch (e) {
+    console.error(`${source}-${size} removeBanners error:`);
     console.error(e);
   }
 }
@@ -54,13 +55,13 @@ async function autoScroll(page) {
 }
 
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function fetchPage(source, url, size, width, height) {
   const browser = await puppeteer.launch({
     headless: isProd,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"]
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
     // slowMo: 1000
   });
   const page = await browser.newPage();
@@ -78,23 +79,28 @@ async function fetchPage(source, url, size, width, height) {
 
   // click a stupid accept banner
   if (source == "der-spiegel") {
-    await page.goto(url, { waitUntil: "networkidle2", timeout: 90 * 1000 });
+    try {
+      await page.goto(url, { waitUntil: "networkidle2", timeout: 90 * 1000 });
 
-    const [childSpan] = await page.$x(
-      '//button/span/span[contains(., "Akzeptieren")]'
-    );
-    if (childSpan) {
-      const parentSpan = (await childSpan.$x(".."))[0];
-      const button = (await parentSpan.$x(".."))[0];
-      await button.click();
-      await sleep(5000);
+      const [childSpan] = await page.$x(
+        '//button/span/span[contains(., "Akzeptieren")]'
+      );
+      if (childSpan) {
+        const parentSpan = (await childSpan.$x(".."))[0];
+        const button = (await parentSpan.$x(".."))[0];
+        await button.click();
+        await sleep(5000);
+      }
+    } catch (e) {
+      console.error(`${source}-${size} banner click error`);
+      console.error(e);
     }
   }
 
   await page.setRequestInterception(true);
 
   try {
-    page.on("request", request => {
+    page.on("request", (request) => {
       if (!isProd) {
         console.log(`${request.resourceType()}: ${request.url()}`);
       }
@@ -121,7 +127,7 @@ async function fetchPage(source, url, size, width, height) {
   }
 
   // click cookie buttons
-  await removeBanners(source, page);
+  await removeBanners(source, size, page);
 
   const pageDocument = await page.evaluate(
     (source, size) => {
@@ -180,10 +186,10 @@ async function fetchPage(source, url, size, width, height) {
       function walkNodeTree(root, options) {
         options = options || {};
 
-        const inspect = options.inspect || (n => true),
-          collect = options.collect || (n => true);
+        const inspect = options.inspect || ((n) => true),
+          collect = options.collect || ((n) => true);
         const walker = document.createTreeWalker(root, NodeFilter.SHOW_ALL, {
-          acceptNode: function(node) {
+          acceptNode: function (node) {
             if (!inspect(node)) {
               return NodeFilter.FILTER_REJECT;
             }
@@ -191,7 +197,7 @@ async function fetchPage(source, url, size, width, height) {
               return NodeFilter.FILTER_SKIP;
             }
             return NodeFilter.FILTER_ACCEPT;
-          }
+          },
         });
 
         const nodes = [];
@@ -206,14 +212,14 @@ async function fetchPage(source, url, size, width, height) {
 
       function textNodesUnder(el, callback) {
         return walkNodeTree(el, {
-          inspect: n => !["STYLE", "SCRIPT"].includes(n.nodeName),
-          collect: n => n.nodeType === Node.TEXT_NODE,
-          callback: n => callback(n)
+          inspect: (n) => !["STYLE", "SCRIPT"].includes(n.nodeName),
+          collect: (n) => n.nodeType === Node.TEXT_NODE,
+          callback: (n) => callback(n),
         });
       }
 
       // replace all text with nbsp
-      textNodesUnder(document.body, function(el) {
+      textNodesUnder(document.body, function (el) {
         if (el.textContent.trim().length > 0) {
           el.textContent = "\u00A0";
         }
@@ -300,7 +306,7 @@ async function fetchPage(source, url, size, width, height) {
         bodyId: document.body.id,
         bodyClasses,
         headHTML: document.head.innerHTML,
-        bodyHTML: document.body.innerHTML
+        bodyHTML: document.body.innerHTML,
       };
     },
     source,
@@ -320,40 +326,40 @@ const sizes = {
   small: { width: 375, height: 667 },
   medium: { width: 768, height: 1024 },
   large: { width: 992, height: 1024 },
-  xlarge: { width: 1200, height: 1024 }
+  xlarge: { width: 1200, height: 1024 },
 };
 
 const sources = {
   nytimes: {
     url: "https://www.nytimes.com",
     name: "New York Times",
-    htmlLang: "en"
+    htmlLang: "en",
   },
   guardian: {
     url: "https://www.theguardian.com/uk",
     name: "The Guardian",
-    htmlLang: "en"
+    htmlLang: "en",
   },
   "le-monde": {
     url: "https://www.lemonde.fr",
     name: "Le Monde",
-    htmlLang: "fr"
+    htmlLang: "fr",
   },
   "der-spiegel": {
     url: "https://www.spiegel.de",
     name: "Der Spiegel",
-    htmlLang: "de"
+    htmlLang: "de",
   },
   "el-pais": { url: "https://elpais.com", name: "El País", htmlLang: "es" },
   asahi: { url: "https://www.asahi.com", name: "朝日新聞", htmlLang: "jp" },
   "la-repubblica": {
     url: "https://www.repubblica.it",
     name: "la Repubblica",
-    htmlLang: "it"
-  }
+    htmlLang: "it",
+  },
 };
 
-const render = async function(source, size) {
+const render = async function (source, size) {
   let width = sizes[size].width,
     height = sizes[size].height,
     url = sources[source].url;
@@ -368,5 +374,5 @@ const render = async function(source, size) {
 module.exports = {
   render: render,
   sizes: sizes,
-  sources: sources
+  sources: sources,
 };
