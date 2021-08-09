@@ -108,9 +108,15 @@ this.run = async () => {
     for (const source of Object.keys(sources)) {
       const page = await render(source, size);
       app.locals[`${source}-${size}`] = page;
+
+      let date = new Date();
+      let isoDateTime = new Date(
+        date.getTime() - date.getTimezoneOffset() * 60000
+      ).toISOString();
+
       fs.writeFileSync(
         `data/${source}-timestamp`,
-        `${new Date().toISOString().replace("T", " ").substr(0, 16)}:${size}`
+        `${isoDateTime.replace("T", " ").substr(0, 16)}:${size}`
       );
     }
   }
