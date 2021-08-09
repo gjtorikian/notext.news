@@ -19,7 +19,7 @@ app.use(express.static("public"));
 
 const isProd = process.env.NODE_ENV == "production";
 if (isProd) {
-  app.use(function(req, res, next) {
+  app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "notext.news");
     res.header(
       "Access-Control-Allow-Headers",
@@ -29,15 +29,25 @@ if (isProd) {
   });
 }
 
-app.get("/", async function(req, res) {
+app.get("/", async function (req, res) {
+  let timestampInfo = {};
+  for (const source of Object.keys(sources)) {
+    if (fs.existsSync(`data/${source}-timestamp`)) {
+      timestampInfo[source] = fs.readFileSync(`data/${source}-timestamp`);
+    } else {
+      timestampInfo[source] = "???";
+    }
+  }
+
   return res.render("index", {
     title: "NoText News",
     htmlLang: "en",
-    url: ""
+    url: "",
+    timestampInfo: timestampInfo,
   });
 });
 
-app.get("/from/:source", async function(req, res) {
+app.get("/from/:source", async function (req, res) {
   let source = req.params.source;
   let s = sources[source];
 
@@ -53,11 +63,11 @@ app.get("/from/:source", async function(req, res) {
     name: name,
     htmlLang: htmlLang,
     title: `NoText: ${name}`,
-    url: `from/${source}`
+    url: `from/${source}`,
   });
 });
 
-app.get("/sizer/:source/:width", async function(req, res) {
+app.get("/sizer/:source/:width", async function (req, res) {
   let source = req.params.source;
   let viewportWidth = Number(req.params.width);
 
@@ -85,7 +95,7 @@ app.get("/sizer/:source/:width", async function(req, res) {
   return res.send(data);
 });
 
-process.on("uncaughtException", function(e) {
+process.on("uncaughtException", function (e) {
   console.error(`An error occurred: ${e}\n${e.stack}"`);
   process.exit(1);
 });
@@ -93,11 +103,15 @@ process.on("uncaughtException", function(e) {
 app.listen(port, () => console.log(`Listening on port ${port}`));
 
 this.run = async () => {
-  // intentional sync work; little DO box can't handle more than one
+  // intentional sync work; little DO box can't handle more than one page read
   for (const size of Object.keys(sizes)) {
     for (const source of Object.keys(sources)) {
       const page = await render(source, size);
       app.locals[`${source}-${size}`] = page;
+      fs.writeFileSync(
+        `data/${source}-timestamp`,
+        new Date().toISOString().replace("T", " ").substr(0, 16)
+      );
     }
   }
 

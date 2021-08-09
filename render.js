@@ -106,23 +106,29 @@ async function fetchPage(source, url, size, width, height) {
       }
 
       if (
-        request.resourceType() == "font" ||
+        request.resourceType() == "font" || // no need to get fonts
         (request.resourceType() == "other" &&
           /(?:pay|payments)\.google\.com/.test(request.url())) ||
         (request.resourceType() == "script" &&
           /adsbygoogle\.js$/.test(request.url())) ||
         // some crazy redirecting spyware bullshit
         (source == "la-repubblica" && request.url().includes("kataweb.it"))
-      )
-        request.abort();
-      else request.continue();
+      ) {
+        request.abort().catch(async (err) => {
+          console.error("Abort error or other error: ", err);
+          return await browser.close();
+        });
+      } else {
+        request.continue();
+      }
     });
 
     await page.goto(url, { waitUntil: "networkidle2", timeout: 90 * 1000 });
 
     // load dynamic content
     await autoScroll(page);
-  } catch (e) {
+  } catch (err) {
+    console.error("Error: ", err);
     return await browser.close();
   }
 
