@@ -4,6 +4,43 @@ const puppeteer = require("puppeteer");
 
 const isProd = process.env.NODE_ENV == "production";
 
+const sizes = {
+  small: { width: 375, height: 667 },
+  medium: { width: 768, height: 1024 },
+  large: { width: 992, height: 1024 },
+  xlarge: { width: 1200, height: 1024 },
+};
+
+const sources = {
+  nytimes: {
+    url: "https://www.nytimes.com",
+    name: "New York Times",
+    htmlLang: "en",
+  },
+  guardian: {
+    url: "https://www.theguardian.com/uk",
+    name: "The Guardian",
+    htmlLang: "en",
+  },
+  "le-monde": {
+    url: "https://www.lemonde.fr",
+    name: "Le Monde",
+    htmlLang: "fr",
+  },
+  "der-spiegel": {
+    url: "https://www.spiegel.de",
+    name: "Der Spiegel",
+    htmlLang: "de",
+  },
+  "el-pais": { url: "https://elpais.com", name: "El País", htmlLang: "es" },
+  asahi: { url: "https://www.asahi.com", name: "朝日新聞", htmlLang: "jp" },
+  "la-repubblica": {
+    url: "https://www.repubblica.it",
+    name: "la Repubblica",
+    htmlLang: "it",
+  },
+};
+
 async function removeBanners(source, size, page) {
   try {
     if (source == "nytimes") {
@@ -327,43 +364,6 @@ async function fetchPage(source, url, size, width, height) {
 
   return pageDocument;
 }
-
-const sizes = {
-  small: { width: 375, height: 667 },
-  medium: { width: 768, height: 1024 },
-  large: { width: 992, height: 1024 },
-  xlarge: { width: 1200, height: 1024 },
-};
-
-const sources = {
-  nytimes: {
-    url: "https://www.nytimes.com",
-    name: "New York Times",
-    htmlLang: "en",
-  },
-  guardian: {
-    url: "https://www.theguardian.com/uk",
-    name: "The Guardian",
-    htmlLang: "en",
-  },
-  "le-monde": {
-    url: "https://www.lemonde.fr",
-    name: "Le Monde",
-    htmlLang: "fr",
-  },
-  "der-spiegel": {
-    url: "https://www.spiegel.de",
-    name: "Der Spiegel",
-    htmlLang: "de",
-  },
-  "el-pais": { url: "https://elpais.com", name: "El País", htmlLang: "es" },
-  asahi: { url: "https://www.asahi.com", name: "朝日新聞", htmlLang: "jp" },
-  "la-repubblica": {
-    url: "https://www.repubblica.it",
-    name: "la Repubblica",
-    htmlLang: "it",
-  },
-};
 
 const render = async function (source, size) {
   let width = sizes[size].width,

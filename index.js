@@ -110,7 +110,7 @@ this.run = async () => {
       app.locals[`${source}-${size}`] = page;
       fs.writeFileSync(
         `data/${source}-timestamp`,
-        new Date().toISOString().replace("T", " ").substr(0, 16)
+        `${new Date().toISOString().replace("T", " ").substr(0, 16)}:${size}`
       );
     }
   }
