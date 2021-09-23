@@ -41,6 +41,37 @@ const sources = {
   },
 };
 
+async function removePopover(source, size, page) {
+  try {
+    if (source == "la-repubblica") {
+      const [button] = await page.$x('//button[contains(., "Accetta")]');
+      if (button) {
+        await button.click();
+      }
+    } else if (source == "el-pais") {
+      const [button] = await page.$x('//button[contains(., "Accept")]');
+      if (button) {
+        await button.click();
+      }
+    } else if (source == "le-monde") {
+      const [button] = await page.$x('//button[contains(., "Accepter")]');
+      if (button) {
+        await button.click();
+      }
+    } else if (source == "der-spiegel") {
+      const [button] = await page.$x(
+        '//button[contains(., "Accept and continue")]'
+      );
+      if (button) {
+        await button.click();
+      }
+    }
+  } catch (e) {
+    console.error(`${source}-${size} removePopover error:`);
+    console.error(e);
+  }
+}
+
 async function removeBanners(source, size, page) {
   try {
     if (source == "nytimes") {
@@ -161,6 +192,9 @@ async function fetchPage(source, url, size, width, height) {
     });
 
     await page.goto(url, { waitUntil: "networkidle2", timeout: 90 * 1000 });
+
+    // click cookie buttons
+    await removePopover(source, size, page);
 
     // load dynamic content
     await autoScroll(page);
