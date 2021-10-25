@@ -116,7 +116,7 @@ this.run = async () => {
 
       fs.writeFileSync(
         `data/${source}-timestamp`,
-        `${isoDateTime.replace("T", " ").substr(0, 16)}:${size}`
+        `${isoDateTime.replace("T", " ").substr(0, 16)}`
       );
     }
   }
