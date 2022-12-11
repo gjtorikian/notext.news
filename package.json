@@ -10,7 +10,7 @@
     "puppeteer": "^10.2.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.12"
+    "nodemon": "^2.0.20"
   },
   "scripts": {
     "server": "nodemon index.js -e js,mustache"
