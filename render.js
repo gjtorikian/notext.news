@@ -75,9 +75,10 @@ async function removePopover(source, size, page) {
 async function removeBanners(source, size, page) {
   try {
     if (source == "nytimes") {
-      const [button] = await page.$x("//button[contains(., 'I Accept')]");
+      const [button] = await page.$x("//button[contains(., 'Continue')]");
       if (button) {
         await button.click();
+        await sleep(5000);
       }
     } else if (source == "guardian") {
       const [span] = await page.$x('//span[contains(., "I\'m OK with that")]');
