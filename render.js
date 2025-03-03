@@ -1,6 +1,7 @@
 const fs = require("fs");
 
 const puppeteer = require("puppeteer");
+import { KnownDevices } from "puppeteer";
 
 const isProd = process.env.NODE_ENV == "production";
 
@@ -137,10 +138,10 @@ async function fetchPage(source, url, size, width, height) {
 
   let device;
   if (size == "small") {
-    device = puppeteer.devices["iPhone 6"];
+    device = KnownDevices["iPhone 6"];
     await page.emulate(device);
   } else if (size == "medium") {
-    device = puppeteer.devices["iPad"];
+    device = KnownDevices["iPad"];
     await page.emulate(device);
   } else {
     await page.setViewport({ width: width, height: height });
