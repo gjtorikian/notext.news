@@ -1,14 +1,19 @@
-const path = require("path");
-const fs = require("fs");
+import path from "path";
+import * as fs from "fs";
 
-const express = require("express");
+import express from "express";
 const app = express();
 const port = 3000;
-const { render, sizes, sources } = require("./render");
+import { render, sizes, sources } from "./render.js";
+
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const VIEWS_PATH = path.join(__dirname, "views");
 
-let mustacheExpress = require("mustache-express");
+import mustacheExpress from "mustache-express";
 
 app.engine("mustache", mustacheExpress());
 
@@ -102,7 +107,7 @@ process.on("uncaughtException", function (e) {
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
 
-this.run = async () => {
+let run = async () => {
   // intentional sync work; little DO box can't handle more than one page read
   for (const size of Object.keys(sizes)) {
     for (const source of Object.keys(sources)) {
@@ -124,4 +129,4 @@ this.run = async () => {
   setTimeout(this.run, 1000 - new Date().getMilliseconds() + 1);
 };
 
-this.run();
+run();

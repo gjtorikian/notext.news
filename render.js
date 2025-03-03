@@ -1,18 +1,17 @@
-const fs = require("fs");
-
-const puppeteer = require("puppeteer");
-import { KnownDevices } from "puppeteer";
+import * as fs from "fs";
+import puppeteer from "puppeteer";
+const KnownDevices = puppeteer.devices;
 
 const isProd = process.env.NODE_ENV == "production";
 
-const sizes = {
+export const sizes = {
   small: { width: 375, height: 667 },
   medium: { width: 768, height: 1024 },
   large: { width: 992, height: 1024 },
   xlarge: { width: 1200, height: 1024 },
 };
 
-const sources = {
+export const sources = {
   nytimes: {
     url: "https://www.nytimes.com",
     name: "New York Times",
@@ -401,7 +400,7 @@ async function fetchPage(source, url, size, width, height) {
   return pageDocument;
 }
 
-const render = async function (source, size) {
+export const render = async function (source, size) {
   let width = sizes[size].width,
     height = sizes[size].height,
     url = sources[source].url;
@@ -411,10 +410,4 @@ const render = async function (source, size) {
   fs.writeFileSync(`data/${source}.page-${size}.json`, page);
 
   return page;
-};
-
-module.exports = {
-  render: render,
-  sizes: sizes,
-  sources: sources,
 };
