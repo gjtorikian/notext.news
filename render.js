@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import puppeteer from "puppeteer";
-const KnownDevices = puppeteer.devices;
+const { KnownDevices } = puppeteer;
 
 const isProd = process.env.NODE_ENV == "production";
 
