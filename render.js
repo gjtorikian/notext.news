@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import puppeteer from "puppeteer";
-const { KnownDevices } = puppeteer;
+import { KnownDevices } from "puppeteer";
 
 const isProd = process.env.NODE_ENV == "production";
 
@@ -44,29 +44,37 @@ export const sources = {
 async function removePopover(source, size, page) {
   try {
     if (source == "la-repubblica") {
-      const [button] = await page.$x('//button[contains(., "Accetta")]');
+      const button = await page.locator(
+        'xpath=//button[contains(., "Accetta")]'
+      );
       if (button) {
         await button.click();
       }
     } else if (source == "el-pais") {
-      const [button] = await page.$x('//button[contains(., "Accept")]');
+      const button = await page.locator(
+        'xpath=//button[contains(., "Accept")]'
+      );
       if (button) {
         await button.click();
       }
     } else if (source == "le-monde") {
-      const [button] = await page.$x('//button[contains(., "Accepter")]');
+      const button = await page.locator(
+        'xpath=//button[contains(., "Accepter")]'
+      );
       if (button) {
         await button.click();
       }
     } else if (source == "der-spiegel") {
-      const [button] = await page.$x(
-        '//button[contains(., "Accept and continue")]'
+      const button = await page.locator(
+        'xpath=//button[contains(., "Accept and continue")]'
       );
       if (button) {
         await button.click();
       }
     } else if (source == "nytimes") {
-      const [button] = await page.$x("//button[contains(., 'Continue')]");
+      const button = await page.locator(
+        'xpath=//button[contains(., "Continue")]'
+      );
       if (button) {
         await button.click();
       }
@@ -80,19 +88,21 @@ async function removePopover(source, size, page) {
 async function removeBanners(source, size, page) {
   try {
     if (source == "guardian") {
-      const [span] = await page.$x('//span[contains(., "I\'m OK with that")]');
+      const span = await page.locator(
+        'xpath=//span[contains(., "I\'m OK with that")]'
+      );
       if (span) {
-        const button = (await span.$x(".."))[0];
+        const button = await span.locator("xpath=..");
         await button.click();
       }
     } else if (source == "el-pais") {
-      const [span] = await page.$x('//span[contains(., "Close")]');
+      const span = await page.locator('xpath=//span[contains(., "Close")]');
       if (span) {
-        const button = (await span.$x(".."))[0];
+        const button = await span.locator("xpath=..");
         await button.click();
       }
     } else if (source == "asahi") {
-      const [a] = await page.$x('//a[contains(@class, "cc-btn")]');
+      const a = await page.locator('xpath=//a[contains(@class, "cc-btn")]');
       if (a) {
         await a.click();
       }
