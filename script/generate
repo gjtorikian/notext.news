@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { render, sizes, sources } from "../render";
+import { render, sizes, sources } from "../render.js";
 
 async function generate() {
   let sourceArg = process.argv[2];
