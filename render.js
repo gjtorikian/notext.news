@@ -39,6 +39,11 @@ export const sources = {
     name: "la Repubblica",
     htmlLang: "it",
   },
+  "al-jazeera": {
+    url: "https://www.aljazeera.com",
+    name: "Al Jazeera",
+    htmlLang: "en",
+  },
 };
 
 async function removePopover(source, size, page) {
