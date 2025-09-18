@@ -44,6 +44,11 @@ export const sources = {
     name: "Al Jazeera",
     htmlLang: "en",
   },
+  "chosun-ilbo": {
+    url: "https://www.chosun.com/",
+    name: "조선일보",
+    htmlLang: "ko",
+  },
 };
 
 async function removePopover(source, size, page) {
