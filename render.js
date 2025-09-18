@@ -48,38 +48,45 @@ export const sources = {
 
 async function removePopover(source, size, page) {
   try {
-    if (source == "la-repubblica") {
+    if (source === "la-repubblica") {
       const button = await page.locator(
         'xpath=//button[contains(., "Accetta")]'
       );
       if (button) {
         await button.click();
       }
-    } else if (source == "el-pais") {
+    } else if (source === "el-pais") {
       const button = await page.locator(
         'xpath=//button[contains(., "Accept")]'
       );
       if (button) {
         await button.click();
       }
-    } else if (source == "le-monde") {
+    } else if (source === "le-monde") {
       const button = await page.locator(
         'xpath=//button[contains(., "Accepter")]'
       );
       if (button) {
         await button.click();
       }
-    } else if (source == "der-spiegel") {
+    } else if (source === "der-spiegel") {
       const button = await page.locator(
         'xpath=//button[contains(., "Accept and continue")]'
       );
       if (button) {
         await button.click();
       }
-    } else if (source == "nytimes") {
+    } else if (source === "nytimes") {
       const button = await page.locator(
         'xpath=//button[contains(., "Continue")]'
       );
+      if (button) {
+        await button.click();
+      }
+    } else if (source === "al-jazeera") {
+      const button = await page.locator(
+        'xpath=///a[contains(., "Close Tooltip")]/*[name()="svg"]'
+      )[1];
       if (button) {
         await button.click();
       }
@@ -108,6 +115,13 @@ async function removeBanners(source, size, page) {
       }
     } else if (source == "asahi") {
       const a = await page.locator('xpath=//a[contains(@class, "cc-btn")]');
+      if (a) {
+        await a.click();
+      }
+    } else if (source == "al-jazeera") {
+      const a = await page.locator(
+        'xpath=//button[@id="onetrust-reject-all-handler"]'
+      );
       if (a) {
         await a.click();
       }
