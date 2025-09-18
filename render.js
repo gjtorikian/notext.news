@@ -79,12 +79,12 @@ async function removePopover(source, size, page) {
         }
       }
     } else if (source === "nytimes") {
-      const button = await page.locator(
-        'xpath=//button[contains(., "Continue")]'
-      );
-      if (button) {
-        await button.click();
-      }
+      // const button = await page.locator(
+      //   'xpath=//button[contains(., "Continue")]'
+      // );
+      // if (button) {
+      //   await button.click();
+      // }
     } else if (source === "al-jazeera") {
       // Remove the user account tooltip
       await page.evaluate(() => {
@@ -240,9 +240,9 @@ async function fetchPage(source, url, size, width, height) {
           // rewrite "/" but not "//"
           if (original !== null && original[0] === "/" && original[1] !== "/") {
             el.setAttribute(attribute, `${url}${original}`);
-          }
-          if (tag === "img") {
-            el.removeAttribute("srcset");
+            if (tag === "img" && attribute === "src") {
+              el.setAttribute("srcset", "");
+            }
           }
         }
       }
