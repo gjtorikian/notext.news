@@ -39,8 +39,30 @@
       body.innerHTML += news.bodyHTML;
     }
 
+    let isHidden = false;
+
+    function toggleTextReplaced() {
+      const elements = document.querySelectorAll('.text-replaced');
+      elements.forEach(element => {
+        if (isHidden) {
+          element.classList.remove('hidden');
+        } else {
+          element.classList.add('hidden');
+        }
+      });
+      isHidden = !isHidden;
+    }
+
+    function handleKeydown(event) {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        toggleTextReplaced();
+      }
+    }
+
     window.addEventListener('DOMContentLoaded', applyNews);
     window.addEventListener('orientationchange', applyNews);
+    window.addEventListener('keydown', handleKeydown);
     </script>
   </body>
 </html>

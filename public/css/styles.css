@@ -12,6 +12,10 @@ div#nt-news-message {
   font-family: Verdana, Geneva, sans-serif;
 }
 
+.hidden {
+  display: none !important;
+}
+
 h1.nt-news-text {
   font-size: 5rem;
   text-align: center;

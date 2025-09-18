@@ -304,10 +304,10 @@ async function fetchPage(source, url, size, width, height) {
         });
       }
 
-      // replace all text with nbsp
       textNodesUnder(document.body, function (el) {
         if (el.textContent.trim().length > 0) {
-          el.textContent = "\u00A0";
+          el.parentNode.classList.add("text-replaced", "hidden");
+          // el.textContent = "\u00A0";
         }
       });
 
