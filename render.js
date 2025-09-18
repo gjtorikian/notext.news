@@ -57,7 +57,7 @@ async function removePopover(source, size, page) {
       }
     } else if (source === "le-monde") {
       const button = await page.locator(
-        'xpath=//button[contains(., "Accepter")]'
+        'xpath=//button[contains(., "Accept")]'
       );
       if (button) {
         await button.click();
@@ -81,12 +81,11 @@ async function removePopover(source, size, page) {
         await button.click();
       }
     } else if (source === "al-jazeera") {
-      const button = await page.locator(
-        'xpath=//a[contains(., "Close Tooltip")]/*[name()="svg"]'
-      )[1];
-      if (button) {
-        await button.click();
-      }
+      // Remove the user account tooltip
+      await page.evaluate(() => {
+        const tooltips = document.querySelectorAll("a.user-accounts-tooltip");
+        tooltips.forEach((tooltip) => tooltip.remove());
+      });
     }
   } catch (e) {
     console.error(`${source}-${size} removePopover error:`);
@@ -107,6 +106,11 @@ async function removeBanners(source, size, page) {
           await frame.locator('button[title="Closer"]').click();
         }
       }
+    } else if (source === "der-spiegel") {
+      const button = await page.locator(
+        'xpath=//div[@id="spPlusBanner"]//button'
+      );
+      await button.click();
     } else if (source === "el-pais") {
       // const span = await page.locator('xpath=//span[contains(., "Close")]');
       // if (span) {
