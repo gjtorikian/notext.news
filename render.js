@@ -236,6 +236,9 @@ async function fetchPage(source, url, size, width, height) {
           if (original !== null && original[0] === "/" && original[1] !== "/") {
             el.setAttribute(attribute, `${url}${original}`);
           }
+          if (tag === "img") {
+            el.removeAttribute("srcset");
+          }
         }
       }
       localize("link", "href", source, url);
