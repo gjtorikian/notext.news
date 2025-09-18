@@ -2,7 +2,7 @@ import * as fs from "fs";
 import puppeteer from "puppeteer";
 import { KnownDevices } from "puppeteer";
 
-const isProd = process.env.NODE_ENV == "production";
+const isProd = process.env.NODE_ENV === "production";
 
 export const sizes = {
   small: { width: 375, height: 667 },
@@ -63,11 +63,15 @@ async function removePopover(source, size, page) {
         await button.click();
       }
     } else if (source === "der-spiegel") {
-      const button = await page.locator(
-        'xpath=//button[contains(., "Accept and continue")]'
-      );
-      if (button) {
-        await button.click();
+      const frames = await page.frames();
+      for (const frame of frames) {
+        const consentButton = await frame.evaluate(() => {
+          return document.querySelector('button[title="Consent and continue"]');
+        });
+
+        if (consentButton) {
+          await frame.locator("button.message-component").click();
+        }
       }
     } else if (source === "nytimes") {
       const button = await page.locator(
@@ -78,7 +82,7 @@ async function removePopover(source, size, page) {
       }
     } else if (source === "al-jazeera") {
       const button = await page.locator(
-        'xpath=///a[contains(., "Close Tooltip")]/*[name()="svg"]'
+        'xpath=//a[contains(., "Close Tooltip")]/*[name()="svg"]'
       )[1];
       if (button) {
         await button.click();
@@ -93,22 +97,15 @@ async function removePopover(source, size, page) {
 async function removeBanners(source, size, page) {
   try {
     if (source === "guardian") {
-      try {
-        // Check for closer button in iframes (cookie banner is in iframe)
-        const frames = await page.frames();
-        for (const frame of frames) {
-          // Look for the closer button in this frame
-          const closerButton = await frame.evaluate(() => {
-            return document.querySelector('button[title="Closer"]');
-          });
+      const frames = await page.frames();
+      for (const frame of frames) {
+        const closerButton = await frame.evaluate(() => {
+          return document.querySelector('button[title="Closer"]');
+        });
 
-          if (closerButton) {
-            await frame.locator('button[title="Closer"]').click();
-          }
+        if (closerButton) {
+          await frame.locator('button[title="Closer"]').click();
         }
-      } catch (e) {
-        console.error(`${source}-${size} removeBanners guardian button error:`);
-        console.error(e);
       }
     } else if (source === "el-pais") {
       // const span = await page.locator('xpath=//span[contains(., "Close")]');
@@ -117,17 +114,13 @@ async function removeBanners(source, size, page) {
       //   await button.click();
       // }
     } else if (source === "asahi") {
-      const a = await page.locator('xpath=//a[contains(@class, "cc-btn")]');
-      if (a) {
-        await a.click();
-      }
+      const a = await page.locator('xpath=//a[@id="befb-cmp-close"]');
+      await a.click();
     } else if (source === "al-jazeera") {
       const a = await page.locator(
         'xpath=//button[@id="onetrust-reject-all-handler"]'
       );
-      if (a) {
-        await a.click();
-      }
+      await a.click();
     }
   } catch (e) {
     console.error(`${source}-${size} removeBanners error:`);
@@ -175,26 +168,6 @@ async function fetchPage(source, url, size, width, height) {
     await page.emulate(device);
   } else {
     await page.setViewport({ width: width, height: height });
-  }
-
-  // click a stupid accept banner
-  if (source == "der-spiegel") {
-    try {
-      await page.goto(url, { waitUntil: "networkidle2", timeout: 90 * 1000 });
-
-      const [childSpan] = await page.$x(
-        '//button/span/span[contains(., "Akzeptieren")]'
-      );
-      if (childSpan) {
-        const parentSpan = (await childSpan.$x(".."))[0];
-        const button = (await parentSpan.$x(".."))[0];
-        await button.click();
-        await sleep(5000);
-      }
-    } catch (e) {
-      console.error(`${source}-${size} banner click error`);
-      console.error(e);
-    }
   }
 
   await page.setRequestInterception(true);
@@ -256,7 +229,7 @@ async function fetchPage(source, url, size, width, height) {
             original = original.replace("america/pf", "pf");
           }
           // rewrite "/" but not "//"
-          if (original !== null && original[0] == "/" && original[1] != "/") {
+          if (original !== null && original[0] === "/" && original[1] !== "/") {
             el.setAttribute(attribute, `${url}${original}`);
           }
         }
@@ -437,6 +410,11 @@ export const render = async function (source, size) {
     url = sources[source].url;
 
   const pageDocument = await fetchPage(source, url, size, width, height);
+
+  if (!pageDocument) {
+    throw new Error(`Failed to fetch page for ${source}-${size}`);
+  }
+
   const page = JSON.stringify(pageDocument);
   fs.writeFileSync(`data/${source}.page-${size}.json`, page);
 
