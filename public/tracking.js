@@ -2,72 +2,46 @@ let observationMode = false;
 let webgazerInitialized = false;
 let gazeInterval = null;
 let lastGazeData = null;
+let faceDetected = true;
 
 function initializeWebGazer() {
   if (webgazerInitialized) return;
 
   webgazer
-    .setGazeListener(function (data) {
+    .setGazeListener((data) => {
       if (!observationMode) return;
-      if (!data) {
-        console.log("No gaze data received");
-        return;
-      }
-      lastGazeData = data;
-      console.log(`Raw gaze data: x=${data.x}, y=${data.y}`);
+      lastGazeData = data; // Store null/undefined when face not detected
     })
     .begin();
 
-  // Show preview and prediction points for calibration
-  webgazer.showVideoPreview(true);
-  webgazer.showPredictionPoints(true);
+  webgazer.showVideoPreview(false);
+  webgazer.showPredictionPoints(false);
 
   webgazerInitialized = true;
-  console.log("WebGazer initialized - CALIBRATION MODE: Click around the screen to calibrate");
-  console.log("Look at different parts of the screen and click to train the model");
 }
 
 function checkGazeDirection(x, y) {
-  // Check if we're getting valid coordinates
+  const elements = document.querySelectorAll(".text-replaced");
+
+  // If coordinates are invalid, face is not detected (black bounding box)
   if (x === null || y === null || x === undefined || y === undefined) {
-    console.log("Invalid gaze coordinates:", x, y);
+    if (faceDetected) {
+      faceDetected = false;
+    }
+    // Show content when face is not detected
+    elements.forEach((element) => {
+      element.classList.remove("hidden");
+    });
     return;
   }
 
-  // Define the main content viewing area (where text appears)
-  // Based on your gaze data, you're looking around x=600, y=570
-  const viewportWidth = window.innerWidth;
-  const viewportHeight = window.innerHeight;
+  if (!faceDetected) {
+    faceDetected = true;
+  }
 
-  // Camera is at top, so main content area is below camera
-  const contentArea = {
-    left: 0,
-    right: viewportWidth,
-    top: viewportHeight * 0.1, // Start below camera area (top 10%)
-    bottom: viewportHeight,
-  };
-
-  const isLookingAtContent =
-    x >= contentArea.left &&
-    x <= contentArea.right &&
-    y >= contentArea.top &&
-    y <= contentArea.bottom;
-
-  console.log(
-    `Gaze: (${Math.round(x)}, ${Math.round(
-      y
-    )}), Content area: 0-${viewportWidth} x 0-${Math.round(contentArea.bottom)}`
-  );
-  console.log(`Looking at content: ${isLookingAtContent}`);
-
-  const elements = document.querySelectorAll(".text-replaced");
-
+  // Hide content when face is detected
   elements.forEach((element) => {
-    if (isLookingAtContent) {
-      element.classList.add("hidden");
-    } else {
-      element.classList.remove("hidden");
-    }
+    element.classList.add("hidden");
   });
 }
 
@@ -76,16 +50,29 @@ function toggleObservationMode() {
     observationMode = true;
     console.log("=== ENTERING OBSERVATION MODE ===");
 
+    // Keep text hidden initially
     const elements = document.querySelectorAll(".text-replaced");
+    elements.forEach((element) => {
+      element.classList.add("hidden");
+    });
 
     initializeWebGazer();
 
-    // Start continuous gaze checking
-    gazeInterval = setInterval(() => {
-      if (lastGazeData && observationMode) {
-        checkGazeDirection(lastGazeData.x, lastGazeData.y);
-      }
-    }, 100); // Check every 100ms
+    // Clear any stale gaze data
+    lastGazeData = null;
+
+    setTimeout(() => {
+      gazeInterval = setInterval(() => {
+        if (observationMode) {
+          if (lastGazeData) {
+            checkGazeDirection(lastGazeData.x, lastGazeData.y);
+          } else {
+            // No face detected
+            checkGazeDirection(null, null);
+          }
+        }
+      }, 100);
+    }, 2000); // 2 second delay before starting gaze checks
   } else {
     observationMode = false;
     console.log("=== EXITING OBSERVATION MODE ===");
@@ -104,7 +91,6 @@ function toggleObservationMode() {
 
     if (webgazerInitialized) {
       webgazer.pause();
-      console.log("WebGazer paused");
     }
   }
 }
