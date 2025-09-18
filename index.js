@@ -126,7 +126,7 @@ let run = async () => {
     }
   }
 
-  setTimeout(this.run, 1000 - new Date().getMilliseconds() + 1);
+  setTimeout(run, 1000 - new Date().getMilliseconds() + 1);
 };
 
 run();
