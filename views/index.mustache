@@ -14,18 +14,11 @@
       <h1 class="nt-news-text">NO TEXT NEWS</h1>
     </div>
     <div id="nt-news-message">
-      <ul class="nt-news-list">
-        <li class="nt-news-item"><a class="nt-news-link nt-news-text" href="/from/nytimes">New York Times</a> <span class="timestamp">({{timestampInfo.nytimes}})</span></li>
-        <li class="nt-news-item"><a class="nt-news-link nt-news-text" href="/from/guardian">The Guardian</a> <span class="timestamp">({{timestampInfo.guardian}})</span></li>
-        <li class="nt-news-item"><a class="nt-news-link nt-news-text" href="/from/le-monde">Le Monde</a> <span class="timestamp">({{timestampInfo.le-monde}})</span></li>
-        <li class="nt-news-item"><a class="nt-news-link nt-news-text" href="/from/der-spiegel">Der Spiegel</a> <span class="timestamp">({{timestampInfo.der-spiegel}})</span></li>
-        <li class="nt-news-item"><a class="nt-news-link nt-news-text" href="/from/el-pais">El País</a> <span class="timestamp">({{timestampInfo.el-pais}})</span></li>
-        <li class="nt-news-item"><a class="nt-news-link nt-news-text" href="/from/asahi">朝日新聞</a> <span class="timestamp">({{timestampInfo.asahi}})</span></li>
-        <li class="nt-news-item"><a class="nt-news-link nt-news-text" href="/from/la-repubblica">la Repubblica</a> <span class="timestamp">({{timestampInfo.la-repubblica}})</span></li>
-      </ul>
+      {{> _news-cards}}
 
       <p id="nt-news-info">
-      <blockquote>"Language is displaced in the cloak of erasure, leaving behind only structure and image."<br/>Kenneth Goldsmith</blockquote>
+      <blockquote class="nt-quote"><em>Language is displaced in the cloak of erasure, leaving behind only structure and image.</em>
+Kenneth Goldsmith</blockquote>
       <a class="nt-news-link" href="https://www.github.com/gjtorikian/notext.news">The source code is available</a>, along with more information.
       </p>
     </div>
